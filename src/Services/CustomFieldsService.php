@@ -1,10 +1,10 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Services;
+namespace Salah\LaravelCustomFields\Services;
 
-use CustomFields\LaravelCustomFields\Models\CustomField;
-use CustomFields\LaravelCustomFields\Models\CustomFieldValue;
-use CustomFields\LaravelCustomFields\ValidationRuleRegistry;
+use Salah\LaravelCustomFields\Models\CustomField;
+use Salah\LaravelCustomFields\Models\CustomFieldValue;
+use Salah\LaravelCustomFields\ValidationRuleRegistry;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 

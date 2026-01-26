@@ -1,9 +1,9 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields;
+namespace Salah\LaravelCustomFields;
 
-use CustomFields\LaravelCustomFields\Commands\InstallCommand;
-use CustomFields\LaravelCustomFields\Commands\LaravelCustomFieldsCommand;
+use Salah\LaravelCustomFields\Commands\InstallCommand;
+use Salah\LaravelCustomFields\Commands\LaravelCustomFieldsCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -33,23 +33,23 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
     {
         $this->app->singleton(FieldTypeRegistry::class, function () {
             $registry = new FieldTypeRegistry;
-            $registry->register(new \CustomFields\LaravelCustomFields\FieldTypes\TextField);
-            $registry->register(new \CustomFields\LaravelCustomFields\FieldTypes\SelectField);
-            // $registry->register(new \CustomFields\LaravelCustomFields\FieldTypes\CheckboxField()); // User removed file? No I created it.
-            $registry->register(new \CustomFields\LaravelCustomFields\FieldTypes\CheckboxField);
-            $registry->register(new \CustomFields\LaravelCustomFields\FieldTypes\NumberField);
-            $registry->register(new \CustomFields\LaravelCustomFields\FieldTypes\PhoneField);
+            $registry->register(new \Salah\LaravelCustomFields\FieldTypes\TextField);
+            $registry->register(new \Salah\LaravelCustomFields\FieldTypes\SelectField);
+            // $registry->register(new \Salah\LaravelCustomFields\FieldTypes\CheckboxField()); // User removed file? No I created it.
+            $registry->register(new \Salah\LaravelCustomFields\FieldTypes\CheckboxField);
+            $registry->register(new \Salah\LaravelCustomFields\FieldTypes\NumberField);
+            $registry->register(new \Salah\LaravelCustomFields\FieldTypes\PhoneField);
 
             return $registry;
         });
 
         $this->app->singleton(ValidationRuleRegistry::class, function () {
             $registry = new ValidationRuleRegistry;
-            $registry->register(new \CustomFields\LaravelCustomFields\ValidationRules\MinRule);
-            $registry->register(new \CustomFields\LaravelCustomFields\ValidationRules\MaxRule);
-            $registry->register(new \CustomFields\LaravelCustomFields\ValidationRules\RegexRule);
-            $registry->register(new \CustomFields\LaravelCustomFields\ValidationRules\RequiredRule);
-            $registry->register(new \CustomFields\LaravelCustomFields\ValidationRules\PhoneRule);
+            $registry->register(new \Salah\LaravelCustomFields\ValidationRules\MinRule);
+            $registry->register(new \Salah\LaravelCustomFields\ValidationRules\MaxRule);
+            $registry->register(new \Salah\LaravelCustomFields\ValidationRules\RegexRule);
+            $registry->register(new \Salah\LaravelCustomFields\ValidationRules\RequiredRule);
+            $registry->register(new \Salah\LaravelCustomFields\ValidationRules\PhoneRule);
 
             return $registry;
         });

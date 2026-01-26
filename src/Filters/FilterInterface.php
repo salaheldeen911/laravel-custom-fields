@@ -1,6 +1,6 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Filters;
+namespace Salah\LaravelCustomFields\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 

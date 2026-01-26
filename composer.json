@@ -36,13 +36,13 @@
     },
     "autoload": {
         "psr-4": {
-            "CustomFields\\LaravelCustomFields\\": "src/",
-            "CustomFields\\LaravelCustomFields\\Database\\Factories\\": "database/factories/"
+            "Salah\\LaravelCustomFields\\": "src/",
+            "Salah\\LaravelCustomFields\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "CustomFields\\LaravelCustomFields\\Tests\\": "tests/",
+            "Salah\\LaravelCustomFields\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -63,10 +63,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "CustomFields\\LaravelCustomFields\\LaravelCustomFieldsServiceProvider"
+                "Salah\\LaravelCustomFields\\LaravelCustomFieldsServiceProvider"
             ],
             "aliases": {
-                "LaravelCustomFields": "CustomFields\\LaravelCustomFields\\Facades\\LaravelCustomFields"
+                "LaravelCustomFields": "Salah\\LaravelCustomFields\\Facades\\LaravelCustomFields"
             }
         }
     },

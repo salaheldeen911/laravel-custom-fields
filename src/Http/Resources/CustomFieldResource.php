@@ -1,6 +1,6 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Http\Resources;
+namespace Salah\LaravelCustomFields\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;

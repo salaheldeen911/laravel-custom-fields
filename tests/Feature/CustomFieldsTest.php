@@ -1,10 +1,10 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Tests\Feature;
+namespace Salah\LaravelCustomFields\Tests\Feature;
 
-use CustomFields\LaravelCustomFields\Models\CustomField;
-use CustomFields\LaravelCustomFields\Tests\TestCase;
-use CustomFields\LaravelCustomFields\Traits\HasCustomFields;
+use Salah\LaravelCustomFields\Models\CustomField;
+use Salah\LaravelCustomFields\Tests\TestCase;
+use Salah\LaravelCustomFields\Traits\HasCustomFields;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;

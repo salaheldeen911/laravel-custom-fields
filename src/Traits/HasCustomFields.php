@@ -1,10 +1,10 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Traits;
+namespace Salah\LaravelCustomFields\Traits;
 
-use CustomFields\LaravelCustomFields\Models\CustomField;
-use CustomFields\LaravelCustomFields\Models\CustomFieldValue;
-use CustomFields\LaravelCustomFields\Services\CustomFieldsService;
+use Salah\LaravelCustomFields\Models\CustomField;
+use Salah\LaravelCustomFields\Models\CustomFieldValue;
+use Salah\LaravelCustomFields\Services\CustomFieldsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 

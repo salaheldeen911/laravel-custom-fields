@@ -2,7 +2,7 @@
 
 namespace CustomFields\LaravelCustomFields;
 
-use CustomFields\LaravelCustomFields\ValidationRules\ValidationRule;
+use Salah\LaravelCustomFields\ValidationRules\ValidationRule;
 
 class ValidationRuleRegistry
 {

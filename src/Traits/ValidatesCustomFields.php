@@ -1,8 +1,8 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Traits;
+namespace Salah\LaravelCustomFields\Traits;
 
-use CustomFields\LaravelCustomFields\Services\CustomFieldsService;
+use Salah\LaravelCustomFields\Services\CustomFieldsService;
 
 trait ValidatesCustomFields
 {

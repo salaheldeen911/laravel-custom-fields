@@ -1,11 +1,11 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Services;
+namespace Salah\LaravelCustomFields\Services;
 
-use CustomFields\LaravelCustomFields\DTOs\FieldTypeMeta;
-use CustomFields\LaravelCustomFields\DTOs\ValidationRuleMeta;
-use CustomFields\LaravelCustomFields\FieldTypeRegistry;
-use CustomFields\LaravelCustomFields\ValidationRuleRegistry;
+use Salah\LaravelCustomFields\DTOs\FieldTypeMeta;
+use Salah\LaravelCustomFields\DTOs\ValidationRuleMeta;
+use Salah\LaravelCustomFields\FieldTypeRegistry;
+use Salah\LaravelCustomFields\ValidationRuleRegistry;
 
 class CustomFieldsMetaService
 {

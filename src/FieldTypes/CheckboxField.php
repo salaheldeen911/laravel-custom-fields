@@ -1,6 +1,6 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\FieldTypes;
+namespace Salah\LaravelCustomFields\FieldTypes;
 
 class CheckboxField extends FieldType
 {

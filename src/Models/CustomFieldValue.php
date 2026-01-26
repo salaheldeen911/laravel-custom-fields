@@ -1,6 +1,6 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Models;
+namespace Salah\LaravelCustomFields\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

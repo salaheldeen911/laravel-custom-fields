@@ -1,11 +1,11 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Facades;
+namespace Salah\LaravelCustomFields\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \CustomFields\LaravelCustomFields\LaravelCustomFields
+ * @see \Salah\LaravelCustomFields\LaravelCustomFields
  */
 class LaravelCustomFields extends Facade
 {

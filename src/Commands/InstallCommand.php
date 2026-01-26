@@ -1,6 +1,6 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Commands;
+namespace Salah\LaravelCustomFields\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;

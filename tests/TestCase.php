@@ -1,8 +1,8 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Tests;
+namespace Salah\LaravelCustomFields\Tests;
 
-use CustomFields\LaravelCustomFields\LaravelCustomFieldsServiceProvider;
+use Salah\LaravelCustomFields\LaravelCustomFieldsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
 

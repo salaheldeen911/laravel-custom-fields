@@ -1,8 +1,8 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Filters\CustomFieldFilters;
+namespace Salah\LaravelCustomFields\Filters\CustomFieldFilters;
 
-use CustomFields\LaravelCustomFields\Filters\FilterInterface;
+use Salah\LaravelCustomFields\Filters\FilterInterface;
 use Illuminate\Database\Eloquent\Builder;
 
 class RequiredFilter implements FilterInterface

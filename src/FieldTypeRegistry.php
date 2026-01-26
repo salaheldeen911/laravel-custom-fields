@@ -2,7 +2,7 @@
 
 namespace CustomFields\LaravelCustomFields;
 
-use CustomFields\LaravelCustomFields\FieldTypes\FieldType;
+use Salah\LaravelCustomFields\FieldTypes\FieldType;
 
 class FieldTypeRegistry
 {

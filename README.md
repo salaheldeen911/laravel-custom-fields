@@ -49,7 +49,7 @@ php artisan custom-fields:install
 2. **Prepare Models**: Add the `HasCustomFields` trait to any model that should support custom fields.
 
     ```php
-    use CustomFields\LaravelCustomFields\Traits\HasCustomFields;
+    use Salah\LaravelCustomFields\Traits\HasCustomFields;
 
     class User extends Model {
         use HasCustomFields;
@@ -214,7 +214,7 @@ Register a new field type by extending `FieldType`:
 ```php
 namespace App\CustomFields;
 
-use CustomFields\LaravelCustomFields\FieldTypes\FieldType;
+use Salah\LaravelCustomFields\FieldTypes\FieldType;
 
 class ColorPickerType extends FieldType {
     public function name(): string { return 'color'; }

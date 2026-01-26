@@ -1,6 +1,6 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Http\Requests;
+namespace Salah\LaravelCustomFields\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 

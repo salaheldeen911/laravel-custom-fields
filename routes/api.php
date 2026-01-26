@@ -1,6 +1,6 @@
 <?php
 
-use CustomFields\LaravelCustomFields\Http\Controllers\CustomFieldApiController;
+use Salah\LaravelCustomFields\Http\Controllers\CustomFieldApiController;
 use Illuminate\Support\Facades\Route;
 
 Route::group([

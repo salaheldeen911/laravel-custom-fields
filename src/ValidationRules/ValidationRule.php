@@ -1,6 +1,6 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\ValidationRules;
+namespace Salah\LaravelCustomFields\ValidationRules;
 
 interface ValidationRule
 {

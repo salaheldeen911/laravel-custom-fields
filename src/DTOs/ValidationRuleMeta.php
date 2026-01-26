@@ -1,6 +1,6 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\DTOs;
+namespace Salah\LaravelCustomFields\DTOs;
 
 class ValidationRuleMeta
 {

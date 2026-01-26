@@ -1,8 +1,8 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Filters;
+namespace Salah\LaravelCustomFields\Filters;
 
-use CustomFields\LaravelCustomFields\Models\CustomField;
+use Salah\LaravelCustomFields\Models\CustomField;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 

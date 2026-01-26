@@ -1,14 +1,14 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Http\Controllers;
+namespace Salah\LaravelCustomFields\Http\Controllers;
 
-use CustomFields\LaravelCustomFields\Filters\FilterEngine;
-use CustomFields\LaravelCustomFields\Http\Requests\FilterCustomFieldRequest;
-use CustomFields\LaravelCustomFields\Http\Requests\StoreCustomFieldRequest;
-use CustomFields\LaravelCustomFields\Http\Requests\UpdateCustomFieldRequest;
-use CustomFields\LaravelCustomFields\Http\Resources\CustomFieldResource;
-use CustomFields\LaravelCustomFields\Models\CustomField;
-use CustomFields\LaravelCustomFields\Services\CustomFieldsMetaService;
+use Salah\LaravelCustomFields\Filters\FilterEngine;
+use Salah\LaravelCustomFields\Http\Requests\FilterCustomFieldRequest;
+use Salah\LaravelCustomFields\Http\Requests\StoreCustomFieldRequest;
+use Salah\LaravelCustomFields\Http\Requests\UpdateCustomFieldRequest;
+use Salah\LaravelCustomFields\Http\Resources\CustomFieldResource;
+use Salah\LaravelCustomFields\Models\CustomField;
+use Salah\LaravelCustomFields\Services\CustomFieldsMetaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
 

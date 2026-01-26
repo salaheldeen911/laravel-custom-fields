@@ -2,7 +2,7 @@
 
 // use YourVendor\LaravelCustomFields\Http\Controllers\CustomFieldController;
 
-use CustomFields\LaravelCustomFields\Http\Controllers\CustomFieldController;
+use Salah\LaravelCustomFields\Http\Controllers\CustomFieldController;
 use Illuminate\Support\Facades\Route;
 
 Route::group([

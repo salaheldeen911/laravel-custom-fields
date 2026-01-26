@@ -1,6 +1,6 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\ValidationRules;
+namespace Salah\LaravelCustomFields\ValidationRules;
 
 class MinRule implements ValidationRule
 {

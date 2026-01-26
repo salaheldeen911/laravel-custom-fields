@@ -140,10 +140,10 @@
 
             <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-start space-x-4">
                 <a href="{{ route('custom-fields.index', ['trashed' => '']) }}" class="text-xs font-medium px-3 py-1 rounded-full {{ !request('trashed') ? 'bg-indigo-100 text-indigo-700' : 'text-gray-500 hover:bg-gray-100' }}">
-                    Active ({{ \CustomFields\LaravelCustomFields\Models\CustomField::count() }})
+                    Active ({{ \Salah\LaravelCustomFields\Models\CustomField::count() }})
                 </a>
                 <a href="{{ route('custom-fields.index', ['trashed' => 'only']) }}" class="text-xs font-medium px-3 py-1 rounded-full {{ request('trashed') == 'only' ? 'bg-red-100 text-red-700' : 'text-gray-500 hover:bg-gray-100' }}">
-                    Trashed ({{ \CustomFields\LaravelCustomFields\Models\CustomField::onlyTrashed()->count() }})
+                    Trashed ({{ \Salah\LaravelCustomFields\Models\CustomField::onlyTrashed()->count() }})
                 </a>
             </div>
         </div>

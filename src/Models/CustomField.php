@@ -1,9 +1,9 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Models;
+namespace Salah\LaravelCustomFields\Models;
 
-use CustomFields\LaravelCustomFields\FieldTypeRegistry;
-use CustomFields\LaravelCustomFields\FieldTypes\FieldType;
+use Salah\LaravelCustomFields\FieldTypeRegistry;
+use Salah\LaravelCustomFields\FieldTypes\FieldType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;

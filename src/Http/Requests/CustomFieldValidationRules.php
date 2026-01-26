@@ -1,9 +1,9 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Http\Requests;
+namespace Salah\LaravelCustomFields\Http\Requests;
 
-use CustomFields\LaravelCustomFields\FieldTypeRegistry;
-use CustomFields\LaravelCustomFields\ValidationRuleRegistry;
+use Salah\LaravelCustomFields\FieldTypeRegistry;
+use Salah\LaravelCustomFields\ValidationRuleRegistry;
 use Illuminate\Validation\Rule;
 
 trait CustomFieldValidationRules

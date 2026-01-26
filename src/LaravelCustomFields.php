@@ -2,7 +2,7 @@
 
 namespace CustomFields\LaravelCustomFields;
 
-use CustomFields\LaravelCustomFields\Models\CustomField;
+use Salah\LaravelCustomFields\Models\CustomField;
 
 class LaravelCustomFields
 {

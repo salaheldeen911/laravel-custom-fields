@@ -1,8 +1,8 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields\Http\Requests;
+namespace Salah\LaravelCustomFields\Http\Requests;
 
-use CustomFields\LaravelCustomFields\FieldTypeRegistry;
+use Salah\LaravelCustomFields\FieldTypeRegistry;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 
