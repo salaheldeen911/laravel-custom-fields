@@ -155,27 +155,39 @@
                 </div>
                 <div class="p-8">
                     @error('validation_rules') <p class="text-red-500 text-sm font-bold mb-6 p-4 bg-red-50 rounded-xl border border-red-100">{{ $message }}</p> @enderror
+                    <!-- Single Hidden Input for all Validation Rules (JSON) -->
+                    <input type="hidden" name="validation_rules" :value="JSON.stringify(rulesValues)">
+
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <template x-for="rule in allowedRules" :key="rule.name">
                             <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 transition-all hover:bg-white hover:shadow-sm">
                                 <label class="block text-xs font-bold text-indigo-600 uppercase tracking-widest mb-1" x-text="rule.label"></label>
                                 <p class="text-[10px] text-gray-500 mb-3" x-text="rule.description"></p>
 
-                                <template x-if="rule.type === 'boolean'">
+                                <template x-if="rule.ui.tag === 'checkbox'">
                                     <div class="flex items-center">
-                                        <input type="hidden" :name="'validation_rules[' + rule.name + ']'" value="0">
                                         <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" :name="'validation_rules[' + rule.name + ']'" value="1" class="sr-only peer" :checked="!!rulesValues[rule.name]">
+                                            <input type="checkbox" value="1" class="sr-only peer" x-model="rulesValues[rule.name]">
                                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none ring-0 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
                                             <span class="ml-3 text-sm font-bold text-gray-700">Enabled</span>
                                         </label>
                                     </div>
                                 </template>
 
-                                <template x-if="rule.type !== 'boolean'">
-                                    <input :type="rule.type" :name="'validation_rules[' + rule.name + ']'"
+                                <template x-if="rule.ui.tag === 'select'">
+                                    <select class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium"
+                                        x-model="rulesValues[rule.name]">
+                                        <option value="">Select Option</option>
+                                        <template x-for="option in rule.ui.options" :key="option.value">
+                                            <option :value="option.value" x-text="option.label"></option>
+                                        </template>
+                                    </select>
+                                </template>
+
+                                <template x-if="rule.ui.tag === 'input'">
+                                    <input :type="rule.ui.type" 
                                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium placeholder:text-[11px] placeholder:font-normal"
-                                        :placeholder="rule.placeholder || 'Enter value...'"
+                                        :placeholder="rule.ui.placeholder || 'Enter value...'"
                                         x-model="rulesValues[rule.name]">
                                 </template>
                             </div>
@@ -204,13 +216,9 @@
     function fieldForm() {
         return {
             meta: window.CustomFieldsMeta,
-            selectedType: {
-                {
-                    @json(old('type', $customField->type))
-                }
-            },
-            options: @json(old('options', $customField->options ? : [''])),
-            rulesValues: @json(old('validation_rules', $customField->validation_rules ? : [])),
+            selectedType: @json(old('type', $customField->type)),
+            options: @json(old('options', $customField->options ?: [''])),
+            rulesValues: @json(old('validation_rules', $customField->prepareRulesForUi() ?: (object)[])),
 
             get currentType() {
                 return this.meta.types.find(t => t.name === this.selectedType);

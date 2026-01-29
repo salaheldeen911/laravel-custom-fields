@@ -7,7 +7,9 @@ class ValidationRuleMeta
     public function __construct(
         public string $name,
         public string $label,
+        public string $component,
         public string $type,
+        public array $config_rules,
         public ?string $placeholder = null,
         public ?string $description = null,
         public array $options = [],
@@ -18,10 +20,17 @@ class ValidationRuleMeta
         return [
             'name' => $this->name,
             'label' => $this->label,
-            'type' => $this->type,
-            'placeholder' => $this->placeholder,
             'description' => $this->description,
-            'options' => $this->options,
+            'ui' => [
+                'component' => $this->component,
+                'type' => $this->type,
+                'placeholder' => $this->placeholder,
+                'options' => $this->options,
+            ],
+            'validation' => [
+                'rule' => $this->name,
+                'config_rules' => $this->config_rules,
+            ],
         ];
     }
 }

@@ -2,8 +2,33 @@
 
 namespace Salah\LaravelCustomFields;
 
+use Salah\LaravelCustomFields\FieldTypeRegistry;
+use Salah\LaravelCustomFields\ValidationRuleRegistry;
 use Salah\LaravelCustomFields\Commands\InstallCommand;
 use Salah\LaravelCustomFields\Commands\LaravelCustomFieldsCommand;
+use Salah\LaravelCustomFields\FieldTypes\CheckboxField;
+use Salah\LaravelCustomFields\FieldTypes\NumberField;
+use Salah\LaravelCustomFields\FieldTypes\PhoneField;
+use Salah\LaravelCustomFields\FieldTypes\EmailField;
+use Salah\LaravelCustomFields\FieldTypes\SelectField;
+use Salah\LaravelCustomFields\FieldTypes\TextField;
+use Salah\LaravelCustomFields\FieldTypes\DateField;
+use Salah\LaravelCustomFields\FieldTypes\UrlField;
+use Salah\LaravelCustomFields\ValidationRules\EmailRule;
+use Salah\LaravelCustomFields\ValidationRules\UrlRule;
+use Salah\LaravelCustomFields\ValidationRules\AfterDateRule;
+use Salah\LaravelCustomFields\ValidationRules\BeforeDateRule;
+use Salah\LaravelCustomFields\ValidationRules\AfterOrEqualDateRule;
+use Salah\LaravelCustomFields\ValidationRules\BeforeOrEqualDateRule;
+use Salah\LaravelCustomFields\ValidationRules\DateFormatRule;
+use Salah\LaravelCustomFields\ValidationRules\AlphaDashRule;
+use Salah\LaravelCustomFields\ValidationRules\AlphaNumRule;
+use Salah\LaravelCustomFields\ValidationRules\AlphaRule;
+use Salah\LaravelCustomFields\ValidationRules\MaxRule;
+use Salah\LaravelCustomFields\ValidationRules\MinRule;
+use Salah\LaravelCustomFields\ValidationRules\NotRegexRule;
+use Salah\LaravelCustomFields\ValidationRules\PhoneRule;
+use Salah\LaravelCustomFields\ValidationRules\RegexRule;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -33,23 +58,35 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
     {
         $this->app->singleton(FieldTypeRegistry::class, function () {
             $registry = new FieldTypeRegistry;
-            $registry->register(new \Salah\LaravelCustomFields\FieldTypes\TextField);
-            $registry->register(new \Salah\LaravelCustomFields\FieldTypes\SelectField);
-            // $registry->register(new \Salah\LaravelCustomFields\FieldTypes\CheckboxField()); // User removed file? No I created it.
-            $registry->register(new \Salah\LaravelCustomFields\FieldTypes\CheckboxField);
-            $registry->register(new \Salah\LaravelCustomFields\FieldTypes\NumberField);
-            $registry->register(new \Salah\LaravelCustomFields\FieldTypes\PhoneField);
+            $registry->register(new TextField);
+            $registry->register(new DateField);
+            $registry->register(new SelectField);
+            $registry->register(new CheckboxField);
+            $registry->register(new NumberField);
+            $registry->register(new PhoneField);
+            $registry->register(new EmailField);
+            $registry->register(new UrlField);
 
             return $registry;
         });
 
         $this->app->singleton(ValidationRuleRegistry::class, function () {
             $registry = new ValidationRuleRegistry;
-            $registry->register(new \Salah\LaravelCustomFields\ValidationRules\MinRule);
-            $registry->register(new \Salah\LaravelCustomFields\ValidationRules\MaxRule);
-            $registry->register(new \Salah\LaravelCustomFields\ValidationRules\RegexRule);
-            $registry->register(new \Salah\LaravelCustomFields\ValidationRules\RequiredRule);
-            $registry->register(new \Salah\LaravelCustomFields\ValidationRules\PhoneRule);
+            $registry->register(new MinRule);
+            $registry->register(new MaxRule);
+            $registry->register(new RegexRule);
+            $registry->register(new NotRegexRule);
+            $registry->register(new AlphaRule);
+            $registry->register(new AlphaDashRule);
+            $registry->register(new AlphaNumRule);
+            $registry->register(new PhoneRule);
+            $registry->register(new EmailRule);
+            $registry->register(new UrlRule);
+            $registry->register(new AfterDateRule);
+            $registry->register(new BeforeDateRule);
+            $registry->register(new AfterOrEqualDateRule);
+            $registry->register(new BeforeOrEqualDateRule);
+            $registry->register(new DateFormatRule);
 
             return $registry;
         });

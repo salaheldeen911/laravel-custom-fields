@@ -2,8 +2,7 @@
 
 namespace Salah\LaravelCustomFields\Services;
 
-use Salah\LaravelCustomFields\DTOs\FieldTypeMeta;
-use Salah\LaravelCustomFields\DTOs\ValidationRuleMeta;
+use Salah\LaravelCustomFields\DTOs\ElementMeta;
 use Salah\LaravelCustomFields\FieldTypeRegistry;
 use Salah\LaravelCustomFields\ValidationRuleRegistry;
 
@@ -52,26 +51,23 @@ class CustomFieldsMetaService
 
     public function getFieldTypes(): array
     {
-        $allRuleDetails = $this->getValidationRuleDetails();
         $types = [];
 
         foreach ($this->fieldTypeRegistry->all() as $type) {
-            $allowedRuleNames = array_keys($type->allowedRules());
+            $allowedRules = $type->allowedRules();
 
-            // Map the allowed rule names to their full details
+            // Map the ValidationRule objects to their full details
             $fieldRuleDetails = [];
-            foreach ($allowedRuleNames as $ruleName) {
-                if (isset($allRuleDetails[$ruleName])) {
-                    $fieldRuleDetails[] = $allRuleDetails[$ruleName];
-                }
+            foreach ($allowedRules as $rule) {
+                $fieldRuleDetails[] = (new ElementMeta(element: $rule))->toArray();
             }
 
-            $types[] = (new FieldTypeMeta(
-                name: $type->name(),
-                label: $type->label(),
-                base_rule: $type->baseRule(),
-                has_options: $type->hasOptions(),
-                allowed_rules: $fieldRuleDetails
+            $types[] = (new ElementMeta(
+                element: $type,
+                additionalData: [
+                    'has_options' => $type->hasOptions(),
+                    'allowed_rules' => $fieldRuleDetails
+                ]
             ))->toArray();
         }
 
@@ -83,27 +79,10 @@ class CustomFieldsMetaService
         $details = [];
 
         foreach ($this->validationRuleRegistry->all() as $rule) {
-            $details[$rule->name()] = (new ValidationRuleMeta(
-                name: $rule->name(),
-                label: $rule->label(),
-                type: $this->transformInputType($rule->inputType()),
-                placeholder: $rule->placeholder(),
-                description: $rule->description(),
-                options: $rule->options()
-            ))->toArray();
+            $details[$rule->name()] = (new ElementMeta(element: $rule))->toArray();
         }
 
         return $details;
     }
-
-    protected function transformInputType(string $inputType): string
-    {
-        // Ensure consistency between backend and frontend
-        return match ($inputType) {
-            'checkbox' => 'boolean',
-            'number' => 'number',
-            'text' => 'text',
-            default => 'text',
-        };
-    }
 }
+

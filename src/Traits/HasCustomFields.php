@@ -6,7 +6,7 @@ use Salah\LaravelCustomFields\Models\CustomField;
 use Salah\LaravelCustomFields\Models\CustomFieldValue;
 use Salah\LaravelCustomFields\Services\CustomFieldsService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
 
 trait HasCustomFields
 {
@@ -21,7 +21,7 @@ trait HasCustomFields
     {
         $modelKey = self::getCustomFieldModelAlias();
 
-        return \Illuminate\Support\Facades\Cache::rememberForever('custom_fields_'.$modelKey, function () use ($modelKey) {
+        return Cache::rememberForever('custom_fields_'.$modelKey, function () use ($modelKey) {
             return CustomField::where('model', $modelKey)->get();
         });
     }

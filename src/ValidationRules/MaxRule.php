@@ -2,7 +2,7 @@
 
 namespace Salah\LaravelCustomFields\ValidationRules;
 
-class MaxRule implements ValidationRule
+class MaxRule extends ValidationRule
 {
     public function name(): string
     {
@@ -14,29 +14,29 @@ class MaxRule implements ValidationRule
         return 'Maximum Value';
     }
 
-    public function configRule()
+    public function baseRule(): array
     {
-        return ['integer', 'min:0'];
+        return ['required', 'integer'];
     }
 
-    public function inputType(): string
+    public function htmlTag(): string
+    {
+        return 'input';
+    }
+
+    public function htmlType(): string
     {
         return 'number';
     }
 
-    public function placeholder(): ?string
+    public function placeholder(): string
     {
         return 'Maximum allowed value';
     }
 
-    public function description(): ?string
+    public function description(): string
     {
         return 'Restricts the input to a maximum numeric value.';
-    }
-
-    public function options(): array
-    {
-        return [];
     }
 
     public function apply($value): string

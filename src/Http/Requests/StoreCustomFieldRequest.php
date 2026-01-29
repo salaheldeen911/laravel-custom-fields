@@ -5,6 +5,8 @@ namespace Salah\LaravelCustomFields\Http\Requests;
 use Salah\LaravelCustomFields\FieldTypeRegistry;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
+use Salah\LaravelCustomFields\Traits\CustomFieldValidationRules;
+use \Illuminate\Contracts\Validation\Validator;
 
 class StoreCustomFieldRequest extends FormRequest
 {
@@ -13,33 +15,6 @@ class StoreCustomFieldRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
-    }
-
-    protected function prepareForValidation()
-    {
-        // Decode JSON if string (API support)
-        if ($this->has('options')) {
-            $options = $this->options;
-            if (is_string($options)) {
-                $options = json_decode($options, true);
-            }
-            if (is_array($options)) {
-                $options = array_values(array_filter($options, fn ($value) => ! is_null($value) && $value !== ''));
-            }
-            $this->merge(['options' => $options]);
-        }
-
-        if ($this->has('validation_rules')) {
-            $rules = $this->validation_rules;
-            if (is_string($rules)) {
-                $rules = json_decode($rules, true);
-            }
-            if (is_array($rules)) {
-                // Remove null or empty string rules to avoid triggering "required" errors for unused rules
-                $rules = array_filter($rules, fn ($value) => ! is_null($value) && $value !== '');
-            }
-            $this->merge(['validation_rules' => $rules]);
-        }
     }
 
     public function rules(): array
@@ -61,9 +36,37 @@ class StoreCustomFieldRequest extends FormRequest
         ];
     }
 
-    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    protected function prepareForValidation()
     {
-        Log::error('Custom Field Validation Failed:', $validator->errors()->toArray());
+        // Decode JSON if string (API support)
+        if ($this->has('options')) {
+            $options = $this->options;
+            if (is_string($options)) {
+                $options = json_decode($options, true);
+            }
+            if (is_array($options)) {
+                $options = array_values(array_filter($options, fn ($value) => ! is_null($value) && $value !== ''));
+            }
+            $this->merge(['options' => $options]);
+        }
+
+        if ($this->has('validation_rules')) {
+            $rules = $this->validation_rules;
+            if (is_string($rules)) {
+                $rules = json_decode($rules, true);
+            }
+            
+            if (is_array($rules)) {
+                $rules = $this->prepareRulesForStorage($rules, $this->type);
+            }
+            
+            $this->merge(['validation_rules' => $rules]);
+        }
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        Log::error('Custom Field Creation Validation Failed:', $validator->errors()->toArray());
         parent::failedValidation($validator);
     }
 }

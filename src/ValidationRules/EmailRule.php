@@ -2,44 +2,40 @@
 
 namespace Salah\LaravelCustomFields\ValidationRules;
 
-class PhoneRule extends ValidationRule
+class EmailRule extends ValidationRule
 {
     public function name(): string
     {
-        return 'phone';
+        return 'email';
     }
 
     public function label(): string
     {
-        return 'Phone Format (e.g., US,EG,mobile)';
+        return 'Email Address';
     }
 
     public function baseRule(): array
     {
-        return ['string'];
+        return ['boolean'];
     }
 
     public function inputType(): string
     {
-        return 'text';
+        return 'checkbox';
     }
 
     public function placeholder(): string
     {
-        return 'e.g., US,EG,mobile';
+        return '';
     }
 
     public function description(): string
     {
-        return 'Validates the phone number format. Leave empty for automatic detection.';
+        return 'Validates that the input is a valid email address.';
     }
 
     public function apply($value): string
     {
-        if (empty($value)) {
-            return 'phone:AUTO';
-        }
-
-        return "phone:{$value}";
+        return 'email';
     }
 }

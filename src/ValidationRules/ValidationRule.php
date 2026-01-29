@@ -2,51 +2,70 @@
 
 namespace Salah\LaravelCustomFields\ValidationRules;
 
-interface ValidationRule
+use Salah\LaravelCustomFields\Contracts\ConfigurableElement;
+
+abstract class ValidationRule implements ConfigurableElement
 {
     /**
-     * The unique name of the rule (e.g., 'min', 'max', 'regex').
+     * The unique identifier for this rule.
      */
-    public function name(): string;
+    abstract public function name(): string;
 
     /**
-     * A human-readable label for the UI (e.g., 'Minimum Value').
+     * The human-readable label for the UI.
      */
-    public function label(): string;
+    abstract public function label(): string;
 
     /**
-     * The validation rule(s) required for the rule's configuration value itself.
-     * Example: 'integer' means the user must input an integer for this rule.
-     *
-     * @return string|array
+     * The HTML tag to be used on the frontend for configuring this rule.
      */
-    public function configRule();
+    public function htmlTag(): string
+    {
+        return 'input';
+    }
 
     /**
-     * The input type to be used on the frontend for configuring this rule.
-     * Examples: 'number', 'text', 'checkbox'.
+     * The type attribute for the HTML tag.
      */
-    public function inputType(): string;
+    public function htmlType(): string
+    {
+        return 'text';
+    }
 
     /**
      * The placeholder for the UI input.
      */
-    public function placeholder(): ?string;
+    public function placeholder(): string
+    {
+        return '';
+    }
 
     /**
      * A description of what this rule does, for the UI.
      */
-    public function description(): ?string;
+    public function description(): string
+    {
+        return '';
+    }
 
     /**
      * Optional predefined values for the rule configuration.
      */
-    public function options(): array;
+    public function options(): array
+    {
+        return [];
+    }
+
+    /**
+     * The base validation rule for configuring this rule.
+     */
+    public function baseRule(): array
+    {
+        return ['string'];
+    }
 
     /**
      * Apply the rule to a value, returning the Laravel validation string segment.
-     *
-     * @param  mixed  $value  The configuration value provided by the user (e.g., 5 for min:5)
      */
-    public function apply($value): string;
+    abstract public function apply($value): string;
 }

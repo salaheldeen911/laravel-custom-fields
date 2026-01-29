@@ -2,44 +2,40 @@
 
 namespace Salah\LaravelCustomFields\ValidationRules;
 
-class PhoneRule extends ValidationRule
+class BeforeOrEqualDateRule extends ValidationRule
 {
     public function name(): string
     {
-        return 'phone';
+        return 'before_or_equal';
     }
 
     public function label(): string
     {
-        return 'Phone Format (e.g., US,EG,mobile)';
+        return 'Before or Equal to Date';
     }
 
     public function baseRule(): array
     {
-        return ['string'];
+        return ['date'];
     }
 
     public function inputType(): string
     {
-        return 'text';
+        return 'date';
     }
 
     public function placeholder(): string
     {
-        return 'e.g., US,EG,mobile';
+        return 'Select a date';
     }
 
     public function description(): string
     {
-        return 'Validates the phone number format. Leave empty for automatic detection.';
+        return 'The input must be a date before or equal to the specified date.';
     }
 
     public function apply($value): string
     {
-        if (empty($value)) {
-            return 'phone:AUTO';
-        }
-
-        return "phone:{$value}";
+        return "before_or_equal:{$value}";
     }
 }

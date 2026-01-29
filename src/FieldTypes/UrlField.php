@@ -5,42 +5,39 @@ namespace Salah\LaravelCustomFields\FieldTypes;
 use Salah\LaravelCustomFields\ValidationRules\FieldValidationRule;
 use Salah\LaravelCustomFields\ValidationRules\MaxRule;
 use Salah\LaravelCustomFields\ValidationRules\MinRule;
+use Salah\LaravelCustomFields\ValidationRules\NotRegexRule;
+use Salah\LaravelCustomFields\ValidationRules\RegexRule;
 
-class CheckboxField extends FieldType
+class UrlField extends FieldType
 {
     public function name(): string
     {
-        return 'checkbox';
+        return 'url';
     }
 
     public function label(): string
     {
-        return 'Checkbox Group';
+        return 'URL Field';
     }
 
     public function htmlTag(): string
     {
-        return 'checkbox';
+        return 'input';
     }
 
     public function htmlType(): string
     {
-        return '';
+        return 'url';
     }
 
     public function description(): string
     {
-        return 'A group of checkboxes allowing multiple selections.';
-    }
-
-    public function hasOptions(): bool
-    {
-        return true;
+        return 'A field for entering and validating web URLs.';
     }
 
     public function baseRule(): array
     {
-        return ['array'];
+        return ['url'];
     }
 
     public function allowedRules(): array
@@ -48,23 +45,13 @@ class CheckboxField extends FieldType
         return [
             new FieldValidationRule(new MinRule(), ['integer', 'min:0']),
             new FieldValidationRule(new MaxRule(), ['integer', 'min:0']),
+            new RegexRule(),
+            new NotRegexRule(),
         ];
-    }
-
-    public function formatValue(mixed $value): mixed
-    {
-        if (is_string($value)) {
-            $decoded = json_decode($value, true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                return $decoded;
-            }
-        }
-
-        return $value;
     }
 
     public function view(): string
     {
-        return 'custom-fields::components.types.checkbox';
+        return 'custom-fields::components.types.url';
     }
 }

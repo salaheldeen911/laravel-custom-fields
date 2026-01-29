@@ -1,7 +1,8 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields;
+namespace Salah\LaravelCustomFields;
 
+use Illuminate\Support\Facades\Cache;
 use Salah\LaravelCustomFields\Models\CustomField;
 
 class LaravelCustomFields
@@ -13,7 +14,7 @@ class LaravelCustomFields
      */
     public function getFields(string $modelClass)
     {
-        return \Illuminate\Support\Facades\Cache::rememberForever('custom_fields_'.$modelClass, function () use ($modelClass) {
+        return Cache::rememberForever('custom_fields_'.$modelClass, function () use ($modelClass) {
             return CustomField::where('model', $modelClass)->get();
         });
     }
@@ -25,6 +26,6 @@ class LaravelCustomFields
      */
     public function clearCache(string $modelClass)
     {
-        \Illuminate\Support\Facades\Cache::forget('custom_fields_'.$modelClass);
+        Cache::forget('custom_fields_'.$modelClass);
     }
 }

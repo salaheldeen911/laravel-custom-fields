@@ -2,21 +2,21 @@
 
 namespace Salah\LaravelCustomFields\ValidationRules;
 
-class RegexRule extends ValidationRule
+class NotRegexRule extends ValidationRule
 {
     public function name(): string
     {
-        return 'regex';
+        return 'not_regex';
     }
 
     public function label(): string
     {
-        return 'Regular Expression (Regex)';
+        return 'Not Regular Expression (Not Regex)';
     }
 
     public function baseRule(): array
     {
-        return ['string', function ($attribute, $value, $fail) {
+        return ['required', 'string', function ($attribute, $value, $fail) {
             if (@preg_match("/$value/", '') === false) {
                 $fail('The regular expression is invalid.');
             }
@@ -30,11 +30,11 @@ class RegexRule extends ValidationRule
 
     public function description(): string
     {
-        return 'Validates the input against a custom regular expression pattern.';
+        return 'Validates that the input does not match a regular expression pattern.';
     }
 
     public function apply($value): string
     {
-        return "regex:/{$value}/";
+        return "not_regex:/{$value}/";
     }
 }

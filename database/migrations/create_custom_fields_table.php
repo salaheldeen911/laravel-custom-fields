@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('placeholder')->nullable();
             $table->json('options')->nullable();
             $table->json('validation_rules')->nullable();
-            $table->unique(['model', 'slug'], 'model_field_slug_unique');
+            $table->unique(['model', 'slug', 'name'], 'model_field_slug_unique');
             $table->softDeletes();
             $table->timestamps();
         });

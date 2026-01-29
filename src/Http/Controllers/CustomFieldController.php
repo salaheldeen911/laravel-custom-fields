@@ -74,6 +74,7 @@ class CustomFieldController extends Controller
     public function update(UpdateCustomFieldRequest $request, string $id): RedirectResponse
     {
         $customField = $this->findWithTrashed($id);
+
         $customField->update($request->validated());
 
         $this->metaService->clearCache();

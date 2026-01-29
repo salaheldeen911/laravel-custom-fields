@@ -2,6 +2,8 @@
 
 namespace Salah\LaravelCustomFields\FieldTypes;
 
+use Salah\LaravelCustomFields\ValidationRules\PhoneRule;
+
 class PhoneField extends FieldType
 {
     public function name(): string
@@ -14,15 +16,30 @@ class PhoneField extends FieldType
         return 'Phone Number';
     }
 
-    public function baseRule(): string
+    public function htmlTag(): string
     {
-        return 'string';
+        return 'input';
+    }
+
+    public function htmlType(): string
+    {
+        return 'tel';
+    }
+
+    public function description(): string
+    {
+        return 'A field for entering and validating phone numbers.';
+    }
+
+    public function baseRule(): array
+    {
+        return ['string'];
     }
 
     public function allowedRules(): array
     {
         return [
-            'phone' => 'string',
+            new PhoneRule(),
         ];
     }
 

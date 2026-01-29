@@ -22,32 +22,19 @@
                     </span>
                 </label>
 
-                {{-- Hidden ID for Service --}}
-                <input type="hidden" name="{{ $field->slug }}[custom_field_id]" value="{{ $field->id }}">
-
                 <div class="relative">
                     {{-- Dynamic Component Loading --}}
                     <x-dynamic-component
                         :component="'custom-fields::types.'.$field->type"
                         :field="$field"
                         :value="$field->currentValue($model)"
-                        :input-name="$field->slug . '[value]'" />
+                        :input-name="$field->slug" />
                 </div>
 
-                @error($field->slug . '.value')
-                @foreach ($errors->get($field->slug . '.*') as $messages)
-
-                @foreach ($messages as $message)
+                @error($field->slug)
                 <p class="text-red-500 text-xs font-bold mt-2 ml-1">
                     {{ $message }}
                 </p>
-                @endforeach
-                @endforeach
-                <!-- <p class="text-red-500 text-xs font-bold mt-2 ml-1 animate-in fade-in slide-in-from-top-1 duration-200">{{ $message }}</p> -->
-                @enderror
-
-                @error($field->slug)
-                <p class="text-red-500 text-xs font-bold mt-2 ml-1 animate-in fade-in slide-in-from-top-1 duration-200">{{ $message }}</p>
                 @enderror
             </div>
             @endforeach

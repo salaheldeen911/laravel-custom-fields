@@ -7,7 +7,7 @@ return [
     ],
     'routing' => [
         'api' => [
-            'enabled' => false,
+            'enabled' => true,
             'prefix' => 'api/custom-fields',
             'middleware' => ['api'],
         ],

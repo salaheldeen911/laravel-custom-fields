@@ -2,6 +2,15 @@
 
 namespace Salah\LaravelCustomFields\FieldTypes;
 
+use Salah\LaravelCustomFields\ValidationRules\AlphaDashRule;
+use Salah\LaravelCustomFields\ValidationRules\AlphaNumRule;
+use Salah\LaravelCustomFields\ValidationRules\AlphaRule;
+use Salah\LaravelCustomFields\ValidationRules\FieldValidationRule;
+use Salah\LaravelCustomFields\ValidationRules\MaxRule;
+use Salah\LaravelCustomFields\ValidationRules\MinRule;
+use Salah\LaravelCustomFields\ValidationRules\NotRegexRule;
+use Salah\LaravelCustomFields\ValidationRules\RegexRule;
+
 class TextField extends FieldType
 {
     public function name(): string
@@ -14,23 +23,36 @@ class TextField extends FieldType
         return 'Text Field';
     }
 
-    public function baseRule(): string
+    public function htmlTag(): string
     {
-        return 'string';
+        return 'input';
+    }
+
+    public function htmlType(): string
+    {
+        return 'text';
+    }
+
+    public function description(): string
+    {
+        return 'A basic text input field for strings.';
+    }
+
+    public function baseRule(): array
+    {
+        return ['string'];
     }
 
     public function allowedRules(): array
     {
         return [
-            'min' => 'integer',
-            'max' => 'integer',
-            'regex' => 'string',
-            'not_regex' => 'string',
-            'email' => 'boolean',
-            'url' => 'boolean',
-            'alpha' => 'boolean',
-            'alpha_dash' => 'boolean',
-            'alpha_num' => 'boolean',
+            new FieldValidationRule(new MinRule(), ['integer', 'min:0']),
+            new FieldValidationRule(new MaxRule(), ['integer', 'min:0']),
+            new RegexRule(),
+            new NotRegexRule(),
+            new AlphaRule(),
+            new AlphaDashRule(),
+            new AlphaNumRule(),
         ];
     }
 

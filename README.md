@@ -72,9 +72,7 @@ Use the provided `<x-custom-fields::render>` component to automatically generate
     <input type="text" name="name" value="{{ old('name') }}" />
 
     <!-- Dynamic Custom Fields -->
-    @foreach(\App\Models\User::customFields() as $field)
-        <x-custom-fields::render :field="$field" :value="old($field->name.'.value')" />
-    @endforeach
+    <x-custom-fields::render :model="$user ?? null" :customFields="\App\Models\User::customFields()" />
 
     <button type="submit">Save</button>
 </form>
@@ -135,21 +133,13 @@ public function update(Request $request, User $user)
 
 Call `GET /api/custom-fields/models-and-types` to get the list of supported models and the metadata for each field type (including allowed validation rules).
 
-### 2. Submitting Data
-
-The package expects custom field data in a specific format to ensure ID tracking and performance:
+The package expects custom field data in a simple key-value format where the key is the field's `slug`.
 
 ```json
 {
     "name": "John Doe",
-    "biography": {
-        "custom_field_id": 1,
-        "value": "Author and developer."
-    },
-    "age": {
-        "custom_field_id": 2,
-        "value": 30
-    }
+    "biography": "Author and developer.",
+    "age": 30
 }
 ```
 

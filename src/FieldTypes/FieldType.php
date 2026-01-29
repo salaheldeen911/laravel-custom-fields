@@ -2,7 +2,10 @@
 
 namespace Salah\LaravelCustomFields\FieldTypes;
 
-abstract class FieldType
+use Salah\LaravelCustomFields\Contracts\ConfigurableElement;
+use Salah\LaravelCustomFields\ValidationRules\ValidationRule;
+
+abstract class FieldType implements ConfigurableElement
 {
     /**
      * The unique identifier for this field type (e.g. 'text', 'select').
@@ -15,6 +18,45 @@ abstract class FieldType
     abstract public function label(): string;
 
     /**
+     * The HTML tag to be used on the frontend for this field.
+     */
+    public function htmlTag(): string
+    {
+        return 'input';
+    }
+
+    /**
+     */
+    public function htmlType(): string
+    {
+        return 'text';
+    }
+
+    /**
+     * The placeholder for the UI input.
+     */
+    public function placeholder(): string
+    {
+        return '';
+    }
+
+    /**
+     * A description of what this field type is.
+     */
+    public function description(): string
+    {
+        return '';
+    }
+
+    /**
+     * Optional predefined values for the field (for select, radio, etc).
+     */
+    public function options(): array
+    {
+        return [];
+    }
+
+    /**
      * Whether this field type supports options (for select, radio, etc).
      */
     public function hasOptions(): bool
@@ -25,11 +67,14 @@ abstract class FieldType
     /**
      * The base validation rule for the value storage (e.g. 'string', 'integer', 'array').
      */
-    abstract public function baseRule(): string;
+    abstract public function baseRule(): array;
 
     /**
-     * Allowed validation rules with their expected value types.
-     * Example: ['min' => 'integer', 'max' => 'integer']
+     * Allowed validation rules as ValidationRule objects.
+     * Each field type can return ValidationRule instances, optionally wrapped with FieldValidationRule
+     * to override baseRule() behavior.
+     *
+     * @return ValidationRule[]
      */
     abstract public function allowedRules(): array;
 
@@ -52,9 +97,11 @@ abstract class FieldType
      */
     public function validateRules(array $rules): void
     {
-        $allowed = array_keys($this->allowedRules());
+        $allowedRules = $this->allowedRules();
+        $allowedRuleNames = array_map(fn(ValidationRule $rule) => $rule->name(), $allowedRules);
+
         foreach (array_keys($rules) as $rule) {
-            if (! in_array($rule, $allowed)) {
+            if (! in_array($rule, $allowedRuleNames)) {
                 throw new \InvalidArgumentException("Rule '$rule' is not allowed for field type '{$this->name()}'");
             }
             // Additional check for rule value type could go here

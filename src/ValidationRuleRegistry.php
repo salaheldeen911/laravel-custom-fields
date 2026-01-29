@@ -1,6 +1,6 @@
 <?php
 
-namespace CustomFields\LaravelCustomFields;
+namespace Salah\LaravelCustomFields;
 
 use Salah\LaravelCustomFields\ValidationRules\ValidationRule;
 

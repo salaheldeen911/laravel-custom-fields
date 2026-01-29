@@ -14,6 +14,25 @@ class CustomField extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $guard_name = 'api';
+    protected $table = 'custom_fields';
+    protected $casts = [
+        'options' => 'array',
+        'validation_rules' => 'array',
+        'required' => 'boolean',
+    ];
+    protected $fillable = [
+        'name',
+        'slug',
+        'model',
+        'type',
+        'required',
+        'placeholder',
+        'options',
+        'validation_rules',
+        'deleted_at',
+    ];
+
     protected static function booted()
     {
         static::creating(function ($customField) {
@@ -36,28 +55,6 @@ class CustomField extends Model
             Cache::forget('custom_fields_'.$customField->attributes['model']);
         });
     }
-
-    protected $guard_name = 'api';
-
-    protected $table = 'custom_fields';
-
-    protected $casts = [
-        'options' => 'array',
-        'validation_rules' => 'array',
-        'required' => 'boolean',
-    ];
-
-    protected $fillable = [
-        'name',
-        'slug',
-        'model',
-        'type',
-        'required',
-        'placeholder',
-        'options',
-        'validation_rules',
-        'deleted_at',
-    ];
 
     public function values()
     {
@@ -84,6 +81,35 @@ class CustomField extends Model
         $formattedValue = $this->handler() ? $this->handler()->formatValue($dbValue) : $dbValue;
 
         // Old input takes precedence (using slug as the key)
-        return old($this->slug.'.value', $formattedValue);
+        return old($this->slug, $formattedValue);
+    }
+
+    /**
+     * Prepare rules for UI display (converting "1" to true for checkboxes)
+     */
+    public function prepareRulesForUi(): array
+    {
+        $rules = $this->validation_rules ?: [];
+        $handler = $this->handler();
+
+        if (! $handler) {
+            return $rules;
+        }
+
+        $allowedRules = $handler->allowedRules();
+        $booleanRules = [];
+        foreach ($allowedRules as $rule) {
+            if (in_array('boolean', $rule->baseRule())) {
+                $booleanRules[] = $rule->name();
+            }
+        }
+
+        foreach ($rules as $key => $value) {
+            if (in_array($key, $booleanRules)) {
+                $rules[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+            }
+        }
+
+        return $rules;
     }
 }

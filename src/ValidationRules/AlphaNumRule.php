@@ -2,45 +2,45 @@
 
 namespace Salah\LaravelCustomFields\ValidationRules;
 
-class MinRule extends ValidationRule
+class AlphaNumRule extends ValidationRule
 {
     public function name(): string
     {
-        return 'min';
+        return 'alpha_num';
     }
 
     public function label(): string
     {
-        return 'Minimum Value';
+        return 'Alpha-Numeric (Letters and numbers)';
     }
 
     public function baseRule(): array
     {
-        return ['required', 'integer'];
+        return ['boolean'];
     }
 
     public function htmlTag(): string
     {
-        return 'input';
+        return 'checkbox';
     }
 
     public function htmlType(): string
     {
-        return 'number';
+        return '';
     }
 
     public function placeholder(): string
     {
-        return 'Minimum allowed value';
+        return '';
     }
 
     public function description(): string
     {
-        return 'Restricts the input to a minimum numeric value.';
+        return 'Validates that the input contains only alphabetic and numeric characters.';
     }
 
     public function apply($value): string
     {
-        return "min:{$value}";
+        return 'alpha_num';
     }
 }
