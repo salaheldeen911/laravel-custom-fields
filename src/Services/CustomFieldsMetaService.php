@@ -59,7 +59,8 @@ class CustomFieldsMetaService
             // Map the ValidationRule objects to their full details
             $fieldRuleDetails = [];
             foreach ($allowedRules as $rule) {
-                $fieldRuleDetails[] = (new ElementMeta(element: $rule))->toArray();
+                $ruleObj = is_string($rule) ? app($rule) : $rule;
+                $fieldRuleDetails[] = (new ElementMeta(element: $ruleObj))->toArray();
             }
 
             $types[] = (new ElementMeta(

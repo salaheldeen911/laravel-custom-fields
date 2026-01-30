@@ -39,6 +39,11 @@ class AfterDateRule extends ValidationRule
         return 'The input must be a date after the specified date.';
     }
 
+    public function conflictsWith(): array
+    {
+        return ['after_or_equal'];
+    }
+
     public function apply($value): string
     {
         return "after:{$value}";

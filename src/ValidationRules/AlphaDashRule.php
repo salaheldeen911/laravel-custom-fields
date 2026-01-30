@@ -24,6 +24,11 @@ class AlphaDashRule extends ValidationRule
         return 'Validates that the input contains only alphabetic characters, dashes, and underscores.';
     }
 
+    public function conflictsWith(): array
+    {
+        return ['alpha', 'alpha_num'];
+    }
+
     public function apply($value): string
     {
         return 'alpha_dash';

@@ -39,6 +39,11 @@ class BeforeDateRule extends ValidationRule
         return 'The input must be a date before the specified date.';
     }
 
+    public function conflictsWith(): array
+    {
+        return ['before_or_equal'];
+    }
+
     public function apply($value): string
     {
         return "before:{$value}";

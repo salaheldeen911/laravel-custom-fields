@@ -31,8 +31,6 @@ class CustomFieldsService
             $rules[$customField->slug] = $this->getValueRule($customField);
         }
 
-        dd($rules);
-
         return $rules;
     }
 
@@ -235,7 +233,8 @@ class CustomFieldsService
         $storedRules = $customField->validation_rules ?: [];
         $rules = [];
 
-        foreach ($allowedRules as $ruleObj) {
+        foreach ($allowedRules as $rule) {
+            $ruleObj = is_string($rule) ? app($rule) : $rule;
             $ruleName = $ruleObj->name();
 
             // Use stored value if exists, otherwise check for a default value defined in the rule class

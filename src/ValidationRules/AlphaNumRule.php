@@ -24,6 +24,11 @@ class AlphaNumRule extends ValidationRule
         return 'Validates that the input contains only alphabetic and numeric characters.';
     }
 
+    public function conflictsWith(): array
+    {
+        return ['alpha', 'alpha_dash'];
+    }
+
     public function apply($value): string
     {
         return 'alpha_num';

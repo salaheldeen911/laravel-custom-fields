@@ -71,6 +71,14 @@ abstract class ValidationRule implements ConfigurableElement
     }
 
     /**
+     * Get rule names this rule conflicts with.
+     */
+    public function conflictsWith(): array
+    {
+        return [];
+    }
+
+    /**
      * Apply the rule to a value, returning the Laravel validation string segment.
      */
     abstract public function apply($value): string;

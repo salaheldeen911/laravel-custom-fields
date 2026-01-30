@@ -99,16 +99,32 @@ trait CustomFieldValidationRules
                     $handler = app(FieldTypeRegistry::class)->get($this->type);
                     if ($handler) {
                         $allowedRules = $handler->allowedRules();
-                        $allowedRuleNames = array_map(fn ($rule) => $rule->name(), $allowedRules);
+                        $allowedRuleNames = array_map(function ($rule) {
+                            return is_string($rule) ? app($rule)->name() : $rule->name();
+                        }, $allowedRules);
 
                         $registry = app(\Salah\LaravelCustomFields\ValidationRuleRegistry::class);
-                        foreach (array_keys($value) as $ruleName) {
+                        $activeRuleNames = array_keys($value);
+
+                        foreach ($activeRuleNames as $ruleName) {
                             if (is_numeric($ruleName)) {
                                 continue;
                             }
 
-                            if (! in_array($ruleName, $allowedRuleNames) || ! $registry->get($ruleName)) {
+                            if (! in_array($ruleName, $allowedRuleNames) || ! ($ruleObj = $registry->get($ruleName))) {
                                 $fail("The rule '{$ruleName}' is invalid or not registered in the system.");
+
+                                continue;
+                            }
+
+                            // Conflict Validation
+                            $conflicts = $ruleObj->conflictsWith();
+                            foreach ($conflicts as $conflictName) {
+                                if (in_array($conflictName, $activeRuleNames)) {
+                                    $conflictRule = $registry->get($conflictName);
+                                    $conflictLabel = $conflictRule ? $conflictRule->label() : $conflictName;
+                                    $fail("The rule '{$ruleObj->label()}' conflicts with '{$conflictName}'. You cannot use both.");
+                                }
                             }
                         }
                     }
