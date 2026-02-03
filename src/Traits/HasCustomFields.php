@@ -13,6 +13,20 @@ trait HasCustomFields
 {
     protected static array $modelAliasCache = [];
 
+    /**
+     * Boot the trait to handle model events.
+     */
+    public static function bootHasCustomFields()
+    {
+        static::deleting(function ($model) {
+            if (method_exists($model, 'isForceDeleting') && ! $model->isForceDeleting()) {
+                return;
+            }
+            
+            $model->customFieldsValues()->delete();
+        });
+    }
+
     public static function getCustomFieldModelAlias(): string
     {
         if (isset(static::$modelAliasCache[static::class])) {

@@ -84,6 +84,8 @@ Automatically render all custom fields for a specific model using a single tag. 
 
 The cleanest way to validate custom fields is by using the `ValidatesCustomFields` trait in your Form Request.
 
+> **CRITICAL:** If `strict_validation` is enabled in config (default: true), you **MUST** use this trait. It not only merges rules but also "marks" the data as safely validated. Failure to use it will result in a `ValidationIntegrityException`.
+
 ```php
 use Salah\LaravelCustomFields\Traits\ValidatesCustomFields;
 
@@ -112,17 +114,24 @@ $validated = $request->validate(array_merge([
 ```
 
 ### 4. Storage & Updates
-
 Use optimized batch methods to save or update custom values.
 
+> **Recommendation:** It is highly recommended to wrap the creation/update of your main model and the custom fields in a **Database Transaction**. This ensures that if the custom field validation fails (or any other error occurs), the main model is not created/updated partially.
+
 ```php
+use Illuminate\Support\Facades\DB;
+
 // Storing
-$user = User::create($request->validated());
-$user->saveCustomFields($request->validated());
+DB::transaction(function () use ($request) {
+    $user = User::create($request->validated());
+    $user->saveCustomFields($request->validated());
+});
 
 // Updating (Uses high-performance UPSERT logic)
-$user->update($request->validated());
-$user->updateCustomFields($request->validated());
+DB::transaction(function () use ($request, $user) {
+    $user->update($request->validated());
+    $user->updateCustomFields($request->validated());
+});
 ```
 
 ---

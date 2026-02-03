@@ -4,6 +4,7 @@ namespace Salah\LaravelCustomFields\Traits;
 
 use Illuminate\Validation\Rule;
 use Salah\LaravelCustomFields\FieldTypeRegistry;
+use Salah\LaravelCustomFields\ValidationRuleRegistry;
 
 trait CustomFieldValidationRules
 {
@@ -20,12 +21,14 @@ trait CustomFieldValidationRules
         }
 
         $allowedRules = $handler->allowedRules();
+
         $rulesMap = [];
         foreach ($allowedRules as $rule) {
-            $rulesMap[$rule->name()] = $rule;
+            $ruleObj = is_string($rule) ? app($rule) : $rule;
+            $rulesMap[$ruleObj->name()] = $ruleObj;
         }
 
-        $registry = app(\Salah\LaravelCustomFields\ValidationRuleRegistry::class);
+        $registry = app(ValidationRuleRegistry::class);
         $normalizedRules = [];
 
         foreach ($rules as $ruleName => $value) {
@@ -103,7 +106,17 @@ trait CustomFieldValidationRules
                             return is_string($rule) ? app($rule)->name() : $rule->name();
                         }, $allowedRules);
 
-                        $registry = app(\Salah\LaravelCustomFields\ValidationRuleRegistry::class);
+                        $registry = app(ValidationRuleRegistry::class);
+                        
+                        // Fix for when passed as string despite prepareForValidation
+                        if (is_string($value)) {
+                            $value = json_decode($value, true);
+                        }
+
+                        if (! is_array($value)) {
+                            return;
+                        }
+
                         $activeRuleNames = array_keys($value);
 
                         foreach ($activeRuleNames as $ruleName) {
@@ -139,7 +152,8 @@ trait CustomFieldValidationRules
 
                 $rulesMap = [];
                 foreach ($allowedRules as $rule) {
-                    $rulesMap[$rule->name()] = $rule;
+                    $ruleObj = is_string($rule) ? app($rule) : $rule;
+                    $rulesMap[$ruleObj->name()] = $ruleObj;
                 }
 
                 foreach ($this->validation_rules as $ruleName => $ruleValue) {

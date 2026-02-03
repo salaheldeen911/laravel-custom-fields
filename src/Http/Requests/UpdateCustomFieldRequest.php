@@ -53,11 +53,13 @@ class UpdateCustomFieldRequest extends FormRequest
         if ($this->has('validation_rules')) {
             $rules = $this->validation_rules;
             if (is_string($rules)) {
-                $rules = json_decode($rules, true);
+                $decoded = json_decode($rules, true);
+                $rules = is_array($decoded) ? $decoded : [];
             }
 
-            if (is_array($rules)) {
-                $rules = $this->prepareRulesForStorage($rules, $this->type);
+            // Only attempt to clean rules if we have a type and valid array
+            if (is_array($rules) && $this->input('type')) {
+                $rules = $this->prepareRulesForStorage($rules, $this->input('type'));
             }
 
             $this->merge(['validation_rules' => $rules]);
