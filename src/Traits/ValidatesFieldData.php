@@ -4,7 +4,7 @@ namespace Salah\LaravelCustomFields\Traits;
 
 use Salah\LaravelCustomFields\Services\CustomFieldsService;
 
-trait ValidatesCustomFields
+trait ValidatesFieldData
 {
     /**
      * Merge the custom fields validation rules with the request rules.

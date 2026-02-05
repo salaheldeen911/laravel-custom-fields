@@ -69,18 +69,6 @@ class CustomFieldsService
     }
 
     /**
-     * Generate a stable hash for the data set.
-     */
-    protected function generateDataHash(array $data): string
-    {
-        // Filter the data to only include keys that match custom field slugs for this model
-        // Actually, just sorting and hashing the whole array is fine as long as it's consistent.
-        ksort($data);
-
-        return md5(json_encode($data));
-    }
-
-    /**
      * Store custom field values for a model instance.
      */
     public function storeValues(Model $model, array $data): void
@@ -151,20 +139,6 @@ class CustomFieldsService
         }
     }
 
-    /**
-     * Ensure the data has been validated before processing.
-     */
-    protected function ensureDataIsValidated(array $data): void
-    {
-        if (! config('custom-fields.strict_validation', true)) {
-            return;
-        }
-
-        if (! $this->isValidated($data)) {
-            throw ValidationIntegrityException::unvalidatedData();
-        }
-    }
-
     public function getValidationRuleDetails(): array
     {
         $registry = app(ValidationRuleRegistry::class);
@@ -185,12 +159,38 @@ class CustomFieldsService
         return $details;
     }
 
+    /**
+     * Generate a stable hash for the data set.
+     */
+    protected function generateDataHash(array $data): string
+    {
+        // Filter the data to only include keys that match custom field slugs for this model
+        // Actually, just sorting and hashing the whole array is fine as long as it's consistent.
+        ksort($data);
+
+        return md5(json_encode($data));
+    }
+
+    /**
+     * Ensure the data has been validated before processing.
+     */
+    protected function ensureDataIsValidated(array $data): void
+    {
+        if (! config('custom-fields.strict_validation', true)) {
+            return;
+        }
+
+        if (! $this->isValidated($data)) {
+            throw ValidationIntegrityException::unvalidatedData();
+        }
+    }
+
     protected function getValueRule(CustomField $customField): array
     {
         $handler = $customField->handler();
 
         if (! $handler) {
-            return ['string'];
+            throw new \RuntimeException("Field type '{$customField->type}' is not registered.");
         }
 
         $rules = [
@@ -207,12 +207,12 @@ class CustomFieldsService
         return array_values(array_unique(array_filter($rules)));
     }
 
-    private function getRequirementRule(CustomField $customField): string
+    protected function getRequirementRule(CustomField $customField): string
     {
         return $customField->required ? 'required' : 'nullable';
     }
 
-    private function getOptionsRule(CustomField $customField, $handler): ?string
+    protected function getOptionsRule(CustomField $customField, $handler): ?string
     {
         if ($handler->hasOptions() && ! empty($customField->options)) {
             return 'in:'.implode(',', $customField->options);
@@ -221,7 +221,7 @@ class CustomFieldsService
         return null;
     }
 
-    private function getCustomRules(CustomField $customField): array
+    protected function getCustomRules(CustomField $customField): array
     {
         $handler = $customField->handler();
 

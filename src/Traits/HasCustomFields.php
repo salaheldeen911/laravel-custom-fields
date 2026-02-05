@@ -22,7 +22,7 @@ trait HasCustomFields
             if (method_exists($model, 'isForceDeleting') && ! $model->isForceDeleting()) {
                 return;
             }
-            
+
             $model->customFieldsValues()->delete();
         });
     }

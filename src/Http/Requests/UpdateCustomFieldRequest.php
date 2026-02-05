@@ -6,11 +6,11 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 use Salah\LaravelCustomFields\FieldTypeRegistry;
-use Salah\LaravelCustomFields\Traits\CustomFieldValidationRules;
+use Salah\LaravelCustomFields\Traits\ValidatesFieldDefinition;
 
 class UpdateCustomFieldRequest extends FormRequest
 {
-    use CustomFieldValidationRules;
+    use ValidatesFieldDefinition;
 
     public function authorize(): bool
     {

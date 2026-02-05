@@ -53,10 +53,24 @@ php artisan custom-fields:install
     ```php
     use Salah\LaravelCustomFields\Traits\HasCustomFields;
 
-    class User extends Model {
-        use HasCustomFields;
     }
     ```
+
+---
+
+## 🧠 Architecture & Validation Concepts
+
+This package separates the world into two distinct logical flows to prevent confusion:
+
+### 1. The Admin Flow (Defining Fields)
+*   **Goal:** Define *what* a field is (e.g., "Age").
+*   **Trait:** `ValidatesFieldDefinition`
+*   **Usage:** Only used when creating/editing the field definitions themselves. It validates that your rules don't conflict (e.g., preventing `alpha` logic on a `number` field).
+
+### 2. The User Flow (Entering Data)
+*   **Goal:** Fill in the field (e.g., "25").
+*   **Trait:** `ValidatesFieldData`
+*   **Usage:** Used in your Application's forms. It applies the rules defined in Step 1 to the user's input.
 
 ---
 
@@ -82,16 +96,16 @@ Automatically render all custom fields for a specific model using a single tag. 
 
 ### 2. Validation (Option A: Form Request - Recommended)
 
-The cleanest way to validate custom fields is by using the `ValidatesCustomFields` trait in your Form Request.
+The cleanest way to validate custom fields is by using the `ValidatesFieldData` trait in your Form Request.
 
 > **CRITICAL:** If `strict_validation` is enabled in config (default: true), you **MUST** use this trait. It not only merges rules but also "marks" the data as safely validated. Failure to use it will result in a `ValidationIntegrityException`.
 
 ```php
-use Salah\LaravelCustomFields\Traits\ValidatesCustomFields;
+use Salah\LaravelCustomFields\Traits\ValidatesFieldData;
 
 class StoreUserRequest extends FormRequest
 {
-    use ValidatesCustomFields;
+    use ValidatesFieldData;
 
     public function rules(): array
     {
@@ -111,6 +125,15 @@ If you prefer validating in the controller, use the helper method on the model:
 $validated = $request->validate(array_merge([
     'name' => 'required',
 ], User::getCustomFieldRules()));
+```
+
+### 3. Validation (Option C: Manual Service)
+
+For complex scenarios where you need granular control or are validating data outside of a request:
+
+```php
+// Validate only custom fields (Throws ValidationException on failure)
+app(CustomFieldsService::class)->validate(User::class, $data);
 ```
 
 ### 4. Storage & Updates

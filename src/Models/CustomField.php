@@ -36,29 +36,6 @@ class CustomField extends Model
         'deleted_at',
     ];
 
-    protected static function booted()
-    {
-        static::creating(function ($customField) {
-            if (empty($customField->slug)) {
-                $customField->slug = Str::slug($customField->name);
-            }
-        });
-
-        static::updating(function ($customField) {
-            if ($customField->isDirty('name') && ! $customField->isDirty('slug')) {
-                $customField->slug = Str::slug($customField->name);
-            }
-        });
-
-        static::saved(function ($customField) {
-            Cache::forget('custom_fields_'.$customField->attributes['model']);
-        });
-
-        static::deleted(function ($customField) {
-            Cache::forget('custom_fields_'.$customField->attributes['model']);
-        });
-    }
-
     public function values()
     {
         return $this->hasMany(CustomFieldValue::class, 'custom_field_id', 'id');
@@ -114,5 +91,28 @@ class CustomField extends Model
         }
 
         return $rules;
+    }
+
+    protected static function booted()
+    {
+        static::creating(function ($customField) {
+            if (empty($customField->slug)) {
+                $customField->slug = Str::slug($customField->name);
+            }
+        });
+
+        static::updating(function ($customField) {
+            if ($customField->isDirty('name') && ! $customField->isDirty('slug')) {
+                $customField->slug = Str::slug($customField->name);
+            }
+        });
+
+        static::saved(function ($customField) {
+            Cache::forget('custom_fields_'.$customField->attributes['model']);
+        });
+
+        static::deleted(function ($customField) {
+            Cache::forget('custom_fields_'.$customField->attributes['model']);
+        });
     }
 }

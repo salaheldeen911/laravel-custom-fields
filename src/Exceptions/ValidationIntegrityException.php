@@ -9,7 +9,7 @@ class ValidationIntegrityException extends RuntimeException
     public static function unvalidatedData(): self
     {
         return new self(
-            'Custom field data must be validated using Model::customFieldsValidation($request) or via ValidatesCustomFields trait before storage. '.
+            'Custom field data must be validated using Model::customFieldsValidation($request) or via ValidatesFieldData trait before storage. '.
             "This strict check ensures data integrity and can be disabled in config/custom-fields.php by setting 'strict_validation' to false."
         );
     }
