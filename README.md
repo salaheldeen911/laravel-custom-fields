@@ -56,6 +56,26 @@ php artisan custom-fields:install
     }
     ```
 
+3.  **Advanced Configuration**: Tune the package in `config/custom-fields.php`.
+    *   **Cache Strategy**: Control `ttl` and `prefix` to balance performance and freshness.
+    *   **Security**: Enable `sanitize_html` to automatically strip tags from text inputs.
+    *   **Maintenance**: Configure `pruning` retention periods for soft-deleted fields.
+
+---
+
+## 🧹 Maintenance & Pruning
+
+To keep your database clean, you can permanently remove soft-deleted custom fields that are older than a configured threshold.
+
+1.  **Configure**: Set `'prune_deleted_after_days' => 30` in your config file.
+2.  **Run Command**:
+
+    ```bash
+    php artisan custom-fields:prune
+    ```
+
+    *Tip: Schedule this command in your `App\Console\Kernel` to run weekly.*
+
 ---
 
 ## 🧠 Architecture & Validation Concepts
@@ -200,6 +220,18 @@ $users = User::withCustomFields()->paginate(20);
 
 foreach ($users as $user) {
     echo $user->custom('biography'); // No extra queries!
+}
+```
+
+### Optimize Show/Edit Pages
+
+When displaying a single model (e.g., in `show` or `edit` methods), use the `loadCustomFields()` helper to ensure all data is loaded efficiently before rendering the view.
+
+```php
+public function edit(User $user)
+{
+    // Eager loads values relationship
+    return view('users.edit')->with('user', $user->loadCustomFields());
 }
 ```
 

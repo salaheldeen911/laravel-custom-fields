@@ -21,7 +21,7 @@ trait HasCustomFields
             if (method_exists($model, 'isForceDeleting') && ! $model->isForceDeleting()) {
                 return;
             }
-            
+
             // Clean up files before deleting records
             if (config('custom-fields.files.cleanup', true)) {
                 $service = app(CustomFieldsService::class);
@@ -47,7 +47,10 @@ trait HasCustomFields
     {
         $modelAlias = static::getCustomFieldModelAlias();
 
-        return Cache::rememberForever('custom_fields_'.$modelAlias, function () use ($modelAlias) {
+        $ttl = config('custom-fields.cache.ttl', 3600);
+        $prefix = config('custom-fields.cache.prefix', 'custom_fields_');
+
+        return Cache::remember($prefix.$modelAlias, $ttl, function () use ($modelAlias) {
             return app(CustomFieldRepositoryInterface::class)
                 ->getByModel($modelAlias);
         });

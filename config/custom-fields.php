@@ -33,4 +33,27 @@ return [
         'path' => 'custom-fields',
         'cleanup' => true, // Automatically delete files when updated or model deleted
     ],
+
+    /**
+     * Caching Strategy
+     * Control how field definitions are cached to optimize performance.
+     */
+    'cache' => [
+        'ttl' => 3600, // seconds (1 hour)
+        'prefix' => 'custom_fields_',
+    ],
+
+    /**
+     * Security & Sanitization
+     */
+    'security' => [
+        'sanitize_html' => true, // Strip dangerous tags from text/textarea fields
+    ],
+
+    /**
+     * Automated Maintenance
+     */
+    'pruning' => [
+        'prune_deleted_after_days' => 30, // Permanently delete soft-deleted fields after X days
+    ],
 ];

@@ -4,6 +4,7 @@ namespace Salah\LaravelCustomFields;
 
 use Salah\LaravelCustomFields\Commands\InstallCommand;
 use Salah\LaravelCustomFields\Commands\LaravelCustomFieldsCommand;
+use Salah\LaravelCustomFields\Console\Commands\PruneCustomFieldsCommand;
 use Salah\LaravelCustomFields\FieldTypes\CheckboxField;
 use Salah\LaravelCustomFields\FieldTypes\ColorField;
 use Salah\LaravelCustomFields\FieldTypes\DateField;
@@ -52,7 +53,8 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
             ->hasConfigFile('custom-fields')
             ->hasMigration('create_custom_fields_table')
             ->hasCommand(LaravelCustomFieldsCommand::class)
-            ->hasCommand(InstallCommand::class);
+            ->hasCommand(InstallCommand::class)
+            ->hasCommand(PruneCustomFieldsCommand::class);
 
         // Always register views, user might validly use them even in API mode if they want emails etc,
         // or we just enable them if web is enabled. For now, let's keep it simple and always register views

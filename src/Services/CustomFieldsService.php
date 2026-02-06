@@ -123,6 +123,12 @@ class CustomFieldsService
             return json_encode($this->storeFileItem($value));
         }
 
+        // HTML Sanitization for Strings
+        if (is_string($value) && config('custom-fields.security.sanitize_html', true)) {
+            // We allow NO tags. Purely text.
+            $value = strip_tags($value);
+        }
+
         return is_array($value) ? json_encode($value) : $value;
     }
 
