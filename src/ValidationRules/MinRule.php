@@ -24,7 +24,7 @@ class MinRule extends ValidationRule
         return 'input';
     }
 
-    public function htmlType(): string
+    public function htmlAttribute(): string
     {
         return 'number';
     }

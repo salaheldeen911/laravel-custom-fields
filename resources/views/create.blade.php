@@ -155,21 +155,23 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <template x-for="rule in allowedRules" :key="rule.name">
-                            <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 transition-all hover:bg-white hover:shadow-sm">
+                            <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 transition-all hover:bg-white hover:shadow-sm"
+                                :class="{'md:col-span-2 lg:col-span-3': rule.name === 'phone'}">
                                 <label class="block text-xs font-bold text-indigo-600 uppercase tracking-widest mb-1" x-text="rule.label"></label>
                                 <p class="text-[10px] text-gray-500 mb-3" x-text="rule.description"></p>
 
                                 <template x-if="rule.ui.tag === 'checkbox'">
                                     <div class="flex items-center">
                                         <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" value="1" class="sr-only peer" x-model="rulesValues[rule.name]">
+                                            <input type="checkbox" class="sr-only peer" x-model="rulesValues[rule.name]">
                                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none ring-0 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
                                             <span class="ml-3 text-sm font-bold text-gray-700">Enabled</span>
                                         </label>
                                     </div>
                                 </template>
 
-                                <template x-if="rule.ui.tag === 'select'">
+                                <!-- Single Select -->
+                                <template x-if="rule.ui.tag === 'select' && rule.ui.attribute !== 'multiple'">
                                     <select class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium"
                                         x-model="rulesValues[rule.name]">
                                         <option value="">Select Option</option>
@@ -177,6 +179,58 @@
                                             <option :value="option.value" x-text="option.label"></option>
                                         </template>
                                     </select>
+                                </template>
+
+                                <!-- Multiple Select (Searchable Country List) -->
+                                <template x-if="rule.ui.tag === 'select' && rule.ui.attribute === 'multiple'">
+                                    <div x-data="{ 
+                                        search: '',
+                                        get filteredOptions() {
+                                            if (!this.search) return rule.ui.options;
+                                            return rule.ui.options.filter(opt => 
+                                                opt.label.toLowerCase().includes(this.search.toLowerCase()) || 
+                                                (opt.keywords && opt.keywords.toLowerCase().includes(this.search.toLowerCase()))
+                                            );
+                                        }
+                                    }" 
+                                    x-init="rulesValues[rule.name] = Array.isArray(rulesValues[rule.name]) ? rulesValues[rule.name] : []"
+                                    class="border border-gray-200 rounded-xl bg-white overflow-hidden shadow-sm">
+                                        
+                                        <!-- Search Header -->
+                                        <div class="pk-2 p-2 relative border-b border-gray-50">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                </svg>
+                                            </div>
+                                            <input type="text" 
+                                                x-model="search" 
+                                                placeholder="Search countries..." 
+                                                class="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 focus:bg-white placeholder-gray-400">
+                                        </div>
+
+                                        <!-- Checkbox List -->
+                                        <div class="h-40 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-gray-200 space-y-1 bg-white">
+                                            <template x-for="option in filteredOptions" :key="option.value">
+                                                <label class="flex items-center px-2 py-1.5 rounded-lg hover:bg-indigo-50 cursor-pointer transition-colors group">
+                                                    <input type="checkbox" 
+                                                        :value="option.value" 
+                                                        x-model="rulesValues[rule.name]"
+                                                        class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                                    <span :class="'ml-2'" class="text-sm text-gray-700 group-hover:text-indigo-900" x-text="option.label"></span>
+                                                </label>
+                                            </template>
+                                            <div x-show="filteredOptions.length === 0" class="p-4 text-center text-gray-500 text-xs italic">
+                                                No results found.
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Footer Info -->
+                                        <div class="bg-gray-50 px-3 py-2 border-t border-gray-100 text-[10px] text-gray-500 flex justify-between items-center font-medium">
+                                            <span><span x-text="rulesValues[rule.name] ? rulesValues[rule.name].length : 0" class="font-bold text-indigo-600 text-xs"></span> selected</span>
+                                            <button type="button" @click="rulesValues[rule.name] = []" class="text-red-500 hover:text-red-700 transition-colors" x-show="rulesValues[rule.name] && rulesValues[rule.name].length > 0">Clear Selection</button>
+                                        </div>
+                                    </div>
                                 </template>
 
                                 <template x-if="rule.ui.tag === 'input'">
@@ -216,7 +270,6 @@
             rulesValues: @json(old('validation_rules', (object)[])),
 
             get currentType() {
-                console.log(window.CustomFieldsMeta);
                 return this.meta.types.find(t => t.name === this.selectedType);
             },
 

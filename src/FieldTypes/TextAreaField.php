@@ -25,7 +25,7 @@ class TextAreaField extends FieldType
         return 'textarea';
     }
 
-    public function htmlType(): string
+    public function htmlAttribute(): string
     {
         return '';
     }

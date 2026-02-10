@@ -2,7 +2,9 @@
 
 namespace Salah\LaravelCustomFields\ValidationRules;
 
-class DateFormatRule extends ValidationRule
+use Salah\LaravelCustomFields\Contracts\HasOptions;
+
+class DateFormatRule extends ValidationRule implements HasOptions
 {
     public function name(): string
     {
@@ -24,7 +26,7 @@ class DateFormatRule extends ValidationRule
         return 'select';
     }
 
-    public function htmlType(): string
+    public function htmlAttribute(): string
     {
         return '';
     }

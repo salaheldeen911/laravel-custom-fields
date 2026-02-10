@@ -20,15 +20,9 @@ abstract class FieldType implements ConfigurableElement
     /**
      * The HTML tag to be used on the frontend for this field.
      */
-    public function htmlTag(): string
-    {
-        return 'input';
-    }
+    abstract public function htmlTag(): string;
 
-    public function htmlType(): string
-    {
-        return 'text';
-    }
+    abstract public function htmlAttribute(): string;
 
     /**
      * The placeholder for the UI input.
@@ -41,18 +35,7 @@ abstract class FieldType implements ConfigurableElement
     /**
      * A description of what this field type is.
      */
-    public function description(): string
-    {
-        return '';
-    }
-
-    /**
-     * Optional predefined values for the field (for select, radio, etc).
-     */
-    public function options(): array
-    {
-        return [];
-    }
+    abstract public function description(): string;
 
     /**
      * Whether this field type supports options (for select, radio, etc).

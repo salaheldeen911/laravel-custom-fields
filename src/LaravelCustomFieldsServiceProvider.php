@@ -29,10 +29,12 @@ use Salah\LaravelCustomFields\ValidationRules\AlphaRule;
 use Salah\LaravelCustomFields\ValidationRules\BeforeDateRule;
 use Salah\LaravelCustomFields\ValidationRules\BeforeOrEqualDateRule;
 use Salah\LaravelCustomFields\ValidationRules\DateFormatRule;
+use Salah\LaravelCustomFields\ValidationRules\LandlineRule;
 use Salah\LaravelCustomFields\ValidationRules\MaxFileSizeRule;
 use Salah\LaravelCustomFields\ValidationRules\MaxRule;
 use Salah\LaravelCustomFields\ValidationRules\MimesRule;
 use Salah\LaravelCustomFields\ValidationRules\MinRule;
+use Salah\LaravelCustomFields\ValidationRules\MobileRule;
 use Salah\LaravelCustomFields\ValidationRules\NotRegexRule;
 use Salah\LaravelCustomFields\ValidationRules\PhoneRule;
 use Salah\LaravelCustomFields\ValidationRules\RegexRule;
@@ -100,6 +102,8 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
             $registry->register(new DateFormatRule);
             $registry->register(new MimesRule);
             $registry->register(new MaxFileSizeRule);
+            $registry->register(new MobileRule);
+            $registry->register(new LandlineRule);
 
             return $registry;
         });

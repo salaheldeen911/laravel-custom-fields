@@ -27,7 +27,7 @@ abstract class ValidationRule implements ConfigurableElement
     /**
      * The type attribute for the HTML tag.
      */
-    public function htmlType(): string
+    public function htmlAttribute(): string
     {
         return '';
     }
@@ -46,28 +46,11 @@ abstract class ValidationRule implements ConfigurableElement
     abstract public function description(): string;
 
     /**
-     * Optional predefined values for the rule configuration.
-     */
-    public function options(): array
-    {
-        return [];
-    }
-
-    /**
      * The base validation rule for configuring this rule.
      */
     public function baseRule(): array
     {
         return ['string'];
-    }
-
-    /**
-     * Optional default configuration value for this rule.
-     * If this returns non-null, the rule will be applied even if not present in the DB.
-     */
-    public function defaultConfigValue(): mixed
-    {
-        return null;
     }
 
     /**

@@ -3,7 +3,7 @@
 // config for CustomFields /LaravelCustomFields
 return [
     'models' => [
-        // 'post' => 'App\Models\Post',
+        // 'post' => Post::class,
     ],
     'routing' => [
         'api' => [

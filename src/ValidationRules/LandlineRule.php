@@ -2,50 +2,54 @@
 
 namespace Salah\LaravelCustomFields\ValidationRules;
 
-class BeforeOrEqualDateRule extends ValidationRule
+class LandlineRule extends ValidationRule
 {
     public function name(): string
     {
-        return 'before_or_equal';
+        return 'landline_only';
     }
 
     public function label(): string
     {
-        return 'Before or Equal to Date';
+        return 'Landline Numbers Only';
     }
 
     public function baseRule(): array
     {
-        return ['date'];
+        return ['boolean']; // It's a checkbox/toggle, so base rule is boolean
     }
 
     public function htmlTag(): string
     {
-        return 'input';
+        return 'checkbox';
     }
 
     public function htmlAttribute(): string
     {
-        return 'date';
+        return '';
     }
 
     public function placeholder(): string
     {
-        return 'Select a date';
+        return '';
     }
 
     public function description(): string
     {
-        return 'The input must be a date before or equal to the specified date.';
+        return 'Restrict to landline/fixed-line numbers only.';
     }
 
     public function conflictsWith(): array
     {
-        return ['before'];
+        return ['mobile_only'];
     }
 
     public function apply($value): string
     {
-        return "before_or_equal:{$value}";
+        if ($value) {
+            return 'phone:fixed_line';
+        }
+
+        return '';
     }
 }

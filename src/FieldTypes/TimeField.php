@@ -19,7 +19,7 @@ class TimeField extends FieldType
         return 'input';
     }
 
-    public function htmlType(): string
+    public function htmlAttribute(): string
     {
         return 'time';
     }

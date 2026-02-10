@@ -19,7 +19,7 @@ class SelectField extends FieldType
         return 'select';
     }
 
-    public function htmlType(): string
+    public function htmlAttribute(): string
     {
         return '';
     }

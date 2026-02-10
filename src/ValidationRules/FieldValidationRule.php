@@ -2,7 +2,9 @@
 
 namespace Salah\LaravelCustomFields\ValidationRules;
 
-class FieldValidationRule extends ValidationRule
+use Salah\LaravelCustomFields\Contracts\HasOptions;
+
+class FieldValidationRule extends ValidationRule implements HasOptions
 {
     public function __construct(
         private ValidationRule $rule,
@@ -31,9 +33,9 @@ class FieldValidationRule extends ValidationRule
         return $this->rule->htmlTag();
     }
 
-    public function htmlType(): string
+    public function htmlAttribute(): string
     {
-        return $this->rule->htmlType();
+        return $this->rule->htmlAttribute();
     }
 
     public function placeholder(): string
@@ -48,7 +50,11 @@ class FieldValidationRule extends ValidationRule
 
     public function options(): array
     {
-        return $this->rule->options();
+        if ($this->rule instanceof \Salah\LaravelCustomFields\Contracts\HasOptions) {
+            return $this->rule->options();
+        }
+
+        return [];
     }
 
     /**

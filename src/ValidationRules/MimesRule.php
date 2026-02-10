@@ -2,7 +2,9 @@
 
 namespace Salah\LaravelCustomFields\ValidationRules;
 
-class MimesRule extends ValidationRule
+use Salah\LaravelCustomFields\Contracts\HasOptions;
+
+class MimesRule extends ValidationRule implements HasOptions
 {
     public function name(): string
     {
@@ -19,7 +21,7 @@ class MimesRule extends ValidationRule
         return 'select';
     }
 
-    public function htmlType(): string
+    public function htmlAttribute(): string
     {
         return '';
     }

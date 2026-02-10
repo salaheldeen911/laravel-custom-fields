@@ -24,7 +24,7 @@ class AfterOrEqualDateRule extends ValidationRule
         return 'input';
     }
 
-    public function htmlType(): string
+    public function htmlAttribute(): string
     {
         return 'date';
     }

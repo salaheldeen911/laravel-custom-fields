@@ -23,7 +23,7 @@ class CheckboxField extends FieldType
         return 'checkbox';
     }
 
-    public function htmlType(): string
+    public function htmlAttribute(): string
     {
         return '';
     }

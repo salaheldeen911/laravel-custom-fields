@@ -2,6 +2,8 @@
 
 namespace Salah\LaravelCustomFields\FieldTypes;
 
+use Salah\LaravelCustomFields\ValidationRules\LandlineRule;
+use Salah\LaravelCustomFields\ValidationRules\MobileRule;
 use Salah\LaravelCustomFields\ValidationRules\PhoneRule;
 
 class PhoneField extends FieldType
@@ -21,7 +23,7 @@ class PhoneField extends FieldType
         return 'input';
     }
 
-    public function htmlType(): string
+    public function htmlAttribute(): string
     {
         return 'tel';
     }
@@ -40,6 +42,8 @@ class PhoneField extends FieldType
     {
         return [
             new PhoneRule,
+            new MobileRule,
+            new LandlineRule,
         ];
     }
 

@@ -22,7 +22,7 @@ interface ConfigurableElement
     /**
      * The type attribute for the HTML tag.
      */
-    public function htmlType(): string;
+    public function htmlAttribute(): string;
 
     /**
      * The placeholder for the UI input.
@@ -33,11 +33,6 @@ interface ConfigurableElement
      * A description of what this element does.
      */
     public function description(): string;
-
-    /**
-     * Optional predefined values for the element configuration.
-     */
-    public function options(): array;
 
     /**
      * The base validation rule for this element.

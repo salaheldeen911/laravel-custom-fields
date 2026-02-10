@@ -3,6 +3,7 @@
 namespace Salah\LaravelCustomFields\DTOs;
 
 use Salah\LaravelCustomFields\Contracts\ConfigurableElement;
+use Salah\LaravelCustomFields\Contracts\HasOptions;
 
 class ElementMeta
 {
@@ -24,9 +25,9 @@ class ElementMeta
             'description' => $this->element->description(),
             'ui' => [
                 'tag' => $this->element->htmlTag(),
-                'type' => $this->element->htmlType(),
+                'attribute' => $this->element->htmlAttribute(),
                 'placeholder' => $this->element->placeholder(),
-                'options' => $this->element->options(),
+                'options' => $this->element instanceof HasOptions ? $this->element->options() : [],
             ],
             'validation' => [
                 'config_rules' => $serializableRules,

@@ -2,7 +2,10 @@
 
 namespace Salah\LaravelCustomFields\ValidationRules;
 
-class PhoneRule extends ValidationRule
+use Salah\LaravelCustomFields\Contracts\HasOptions;
+use Salah\LaravelCustomFields\Services\CountryService;
+
+class PhoneRule extends ValidationRule implements HasOptions
 {
     public function name(): string
     {
@@ -16,12 +19,17 @@ class PhoneRule extends ValidationRule
 
     public function baseRule(): array
     {
-        return ['string'];
+        return ['array'];
     }
 
     public function htmlTag(): string
     {
-        return 'input';
+        return 'select';
+    }
+
+    public function htmlAttribute(): string
+    {
+        return 'multiple';
     }
 
     public function placeholder(): string
@@ -29,20 +37,24 @@ class PhoneRule extends ValidationRule
         return 'e.g., US,EG,mobile';
     }
 
-    public function description(): string
+    public function options(): array
     {
-        return 'Validates the phone number format. Leave empty for automatic detection.';
+        return CountryService::getAll();
     }
 
-    public function defaultConfigValue(): mixed
+    public function description(): string
     {
-        return '';
+        return 'Select allowed countries (searchable).';
     }
 
     public function apply($value): string
     {
         if (empty($value)) {
-            return 'phone:AUTO';
+            return 'phone';
+        }
+
+        if (is_array($value)) {
+            $value = implode(',', $value);
         }
 
         return "phone:{$value}";

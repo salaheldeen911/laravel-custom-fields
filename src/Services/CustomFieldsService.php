@@ -244,7 +244,7 @@ class CustomFieldsService
                 'rule' => $serializableRules,
                 'label' => $rule->label(),
                 'tag' => $rule->htmlTag(),
-                'type' => $rule->htmlType(),
+                'type' => $rule->htmlAttribute(),
             ];
         }
 
@@ -298,9 +298,7 @@ class CustomFieldsService
 
         $finalRules = array_values(array_unique(array_filter($rules)));
 
-        // Special handling for Multiple Files - REMOVED
-
-        return $finalRules;
+        return $this->mergePhoneRules($finalRules);
     }
 
     protected function getRequirementRule(CustomField $customField): string
@@ -333,10 +331,9 @@ class CustomFieldsService
             $ruleObj = is_string($rule) ? app($rule) : $rule;
             $ruleName = $ruleObj->name();
 
-            // Use stored value if exists, otherwise check for a default value defined in the rule class
             $value = array_key_exists($ruleName, $storedRules)
                 ? $storedRules[$ruleName]
-                : $ruleObj->defaultConfigValue();
+                : null;
 
             if (is_null($value)) {
                 continue;
@@ -344,13 +341,11 @@ class CustomFieldsService
 
             $baseRule = $ruleObj->baseRule();
 
-            // For boolean rules, skip if false/null (unless it's a default that explicitly wants to run)
             if (in_array('boolean', $baseRule) && ! $value) {
                 continue;
             }
 
-            // For value-based rules, skip if empty string (unless it's a default that handles empty)
-            if (! in_array('boolean', $baseRule) && $value === '' && is_null($ruleObj->defaultConfigValue())) {
+            if (! in_array('boolean', $baseRule) && $value === '') {
                 continue;
             }
 
@@ -358,5 +353,32 @@ class CustomFieldsService
         }
 
         return $rules;
+    }
+
+    /**
+     * Merge multiple phone rules into a single rule with comma-separated parameters.
+     * e.g. ['phone:US', 'phone:mobile'] -> ['phone:US,mobile']
+     */
+    private function mergePhoneRules(array $rules): array
+    {
+        $phoneParams = [];
+        $otherRules = [];
+
+        foreach ($rules as $rule) {
+            if (is_string($rule) && str_starts_with($rule, 'phone')) {
+                $params = explode(',', substr($rule, 6));
+                $phoneParams = array_merge($phoneParams, $params);
+            } else {
+                $otherRules[] = $rule;
+            }
+        }
+
+        if (! empty($phoneParams)) {
+            $uniqueParams = array_unique(array_filter($phoneParams));
+            // Re-assemble phone rule
+            $otherRules[] = 'phone:'.implode(',', $uniqueParams);
+        }
+
+        return $otherRules;
     }
 }
