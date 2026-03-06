@@ -99,7 +99,11 @@ class CustomFieldsService
         }
 
         if (! empty($values)) {
-            CustomFieldValue::insert($values);
+            CustomFieldValue::upsert(
+                $values,
+                ['custom_field_id', 'model_type', 'model_id'],
+                ['value', 'updated_at']
+            );
         }
     }
 
@@ -283,7 +287,9 @@ class CustomFieldsService
 
         $rules = array_merge($rules, $this->getCustomRules($customField));
 
-        $finalRules = array_values(array_unique(array_filter($rules)));
+        $stringRules = array_filter($rules, 'is_string');
+        $otherRules = array_filter($rules, fn ($r) => ! is_string($r));
+        $finalRules = array_merge(array_values(array_unique($stringRules)), array_values($otherRules));
 
         return $this->mergePhoneRules($finalRules);
     }
