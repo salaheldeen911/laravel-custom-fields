@@ -28,6 +28,6 @@ trait ValidatesFieldData
      */
     protected function passedValidation(): void
     {
-        app(CustomFieldsService::class)->markAsValidated($this->validated());
+        app(CustomFieldsService::class)->markAsValidated();
     }
 }
