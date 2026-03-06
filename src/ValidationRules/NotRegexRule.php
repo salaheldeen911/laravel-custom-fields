@@ -20,6 +20,15 @@ class NotRegexRule extends ValidationRule
             if (@preg_match("/$value/", '') === false) {
                 $fail('The regular expression is invalid.');
             }
+
+            $oldLimit = ini_get('pcre.backtrack_limit');
+            ini_set('pcre.backtrack_limit', '10000');
+            $result = @preg_match("/$value/", str_repeat('a', 100));
+            ini_set('pcre.backtrack_limit', $oldLimit);
+
+            if ($result === false) {
+                $fail('The regular expression is too complex or causes excessive backtracking.');
+            }
         }];
     }
 

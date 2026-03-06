@@ -33,7 +33,6 @@ class CustomField extends Model
         'placeholder',
         'options',
         'validation_rules',
-        'deleted_at',
     ];
 
     public function values()

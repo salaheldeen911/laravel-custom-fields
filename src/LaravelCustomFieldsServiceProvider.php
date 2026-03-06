@@ -122,12 +122,35 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
+        $this->warnIfNoAuthMiddleware();
+
         if (config('custom-fields.routing.web.enabled', true)) {
             $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         }
 
         if (config('custom-fields.routing.api.enabled', false)) {
             $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
+        }
+    }
+
+    protected function warnIfNoAuthMiddleware(): void
+    {
+        $routes = ['api', 'web'];
+
+        foreach ($routes as $route) {
+            if (! config("custom-fields.routing.{$route}.enabled")) {
+                continue;
+            }
+
+            $middleware = config("custom-fields.routing.{$route}.middleware", []);
+            $hasAuth = collect($middleware)->contains(fn ($m) => str_starts_with($m, 'auth'));
+
+            if (! $hasAuth) {
+                \Illuminate\Support\Facades\Log::warning(
+                    "Laravel Custom Fields: {$route} routes are enabled without auth middleware. "
+                    . "Add authentication middleware in config/custom-fields.php to protect your routes."
+                );
+            }
         }
     }
 }

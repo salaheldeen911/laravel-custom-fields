@@ -9,11 +9,15 @@ return [
         'api' => [
             'enabled' => true,
             'prefix' => 'api/custom-fields',
+            // WARNING: No auth middleware by default. Add 'auth:sanctum' or your guard here.
+            // Example: ['api', 'auth:sanctum', 'throttle:api']
             'middleware' => ['api'],
         ],
         'web' => [
             'enabled' => true,
             'prefix' => 'custom-fields',
+            // WARNING: No auth middleware by default. Add 'auth' or your guard here.
+            // Example: ['web', 'auth']
             'middleware' => ['web'],
         ],
     ],
