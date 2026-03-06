@@ -14,8 +14,6 @@ class CustomField extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $guard_name = 'api';
-
     protected $table = 'custom_fields';
 
     protected $casts = [

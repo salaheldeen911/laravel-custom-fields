@@ -32,8 +32,6 @@ class CustomFieldValue extends Model
         });
     }
 
-    protected $guard_name = 'api';
-
     protected $fillable = [
         'custom_field_id',
         'model_id',

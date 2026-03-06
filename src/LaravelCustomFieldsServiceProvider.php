@@ -3,7 +3,6 @@
 namespace Salah\LaravelCustomFields;
 
 use Salah\LaravelCustomFields\Commands\InstallCommand;
-use Salah\LaravelCustomFields\Commands\LaravelCustomFieldsCommand;
 use Salah\LaravelCustomFields\Console\Commands\PruneCustomFieldsCommand;
 use Salah\LaravelCustomFields\FieldTypes\CheckboxField;
 use Salah\LaravelCustomFields\FieldTypes\ColorField;
@@ -54,7 +53,6 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
             ->name('laravel-custom-fields')
             ->hasConfigFile('custom-fields')
             ->hasMigration('create_custom_fields_table')
-            ->hasCommand(LaravelCustomFieldsCommand::class)
             ->hasCommand(InstallCommand::class)
             ->hasCommand(PruneCustomFieldsCommand::class);
 
