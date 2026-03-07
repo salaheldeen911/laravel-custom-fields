@@ -14,7 +14,10 @@ class LaravelCustomFields
      */
     public function getFields(string $modelClass)
     {
-        return Cache::rememberForever('custom_fields_'.$modelClass, function () use ($modelClass) {
+        $prefix = config('custom-fields.cache.prefix', 'custom_fields_');
+        $ttl = config('custom-fields.cache.ttl', 3600);
+
+        return Cache::remember($prefix . $modelClass, $ttl, function () use ($modelClass) {
             return CustomField::where('model', $modelClass)->get();
         });
     }
@@ -26,6 +29,7 @@ class LaravelCustomFields
      */
     public function clearCache(string $modelClass)
     {
-        Cache::forget('custom_fields_'.$modelClass);
+        $prefix = config('custom-fields.cache.prefix', 'custom_fields_');
+        Cache::forget($prefix . $modelClass);
     }
 }

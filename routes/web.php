@@ -14,7 +14,7 @@ Route::group([
     Route::get('/create', [CustomFieldController::class, 'create'])->name('create');
     Route::post('/', [CustomFieldController::class, 'store'])->name('store');
     Route::post('/{id}/restore', [CustomFieldController::class, 'restore'])->name('restore');
-    Route::delete('/{id}/force', [CustomFieldController::class, 'forceDelete'])->name('force-delete');
+    Route::delete('/{id}/force', [CustomFieldController::class, 'forceDestroy'])->name('force-delete');
     Route::get('/{customField}/edit', [CustomFieldController::class, 'edit'])->name('edit');
     Route::put('/{customField}', [CustomFieldController::class, 'update'])->name('update');
     Route::delete('/{customField}', [CustomFieldController::class, 'destroy'])->name('destroy');

@@ -14,8 +14,6 @@ class CustomField extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $guard_name = 'api';
-
     protected $table = 'custom_fields';
 
     protected $casts = [
@@ -33,7 +31,6 @@ class CustomField extends Model
         'placeholder',
         'options',
         'validation_rules',
-        'deleted_at',
     ];
 
     public function values()
@@ -108,11 +105,11 @@ class CustomField extends Model
         });
 
         static::saved(function ($customField) {
-            Cache::forget('custom_fields_'.$customField->attributes['model']);
+            Cache::forget(config('custom-fields.cache.prefix', 'custom_fields_') . $customField->attributes['model']);
         });
 
         static::deleted(function ($customField) {
-            Cache::forget('custom_fields_'.$customField->attributes['model']);
+            Cache::forget(config('custom-fields.cache.prefix', 'custom_fields_') . $customField->attributes['model']);
         });
 
         static::forceDeleting(function ($customField) {

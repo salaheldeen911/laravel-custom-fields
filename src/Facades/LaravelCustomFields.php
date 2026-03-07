@@ -11,6 +11,6 @@ class LaravelCustomFields extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return LaravelCustomFields::class;
+        return \Salah\LaravelCustomFields\LaravelCustomFields::class;
     }
 }

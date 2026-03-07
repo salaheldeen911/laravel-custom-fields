@@ -15,7 +15,7 @@ use Salah\LaravelCustomFields\ValidationRuleRegistry;
 
 class CustomFieldsService
 {
-    protected array $validatedHashes = [];
+    protected bool $validated = false;
 
     public function __construct(
         protected CustomFieldRepositoryInterface $repository
@@ -46,7 +46,7 @@ class CustomFieldsService
 
         $validator->after(function ($validator) {
             if (! $validator->errors()->any()) {
-                $this->markAsValidated($validator->validated());
+                $this->markAsValidated();
             }
         });
 
@@ -56,18 +56,17 @@ class CustomFieldsService
     /**
      * Mark a data set as successfully validated.
      */
-    public function markAsValidated(array $data): void
+    public function markAsValidated(): void
     {
-        $hash = $this->generateDataHash($data);
-        $this->validatedHashes[$hash] = true;
+        $this->validated = true;
     }
 
     /**
      * Check if the data set has been validated.
      */
-    public function isValidated(array $data): bool
+    public function isValidated(): bool
     {
-        return isset($this->validatedHashes[$this->generateDataHash($data)]);
+        return $this->validated;
     }
 
     /**
@@ -100,7 +99,11 @@ class CustomFieldsService
         }
 
         if (! empty($values)) {
-            CustomFieldValue::insert($values);
+            CustomFieldValue::upsert(
+                $values,
+                ['custom_field_id', 'model_type', 'model_id'],
+                ['value', 'updated_at']
+            );
         }
     }
 
@@ -252,18 +255,6 @@ class CustomFieldsService
     }
 
     /**
-     * Generate a stable hash for the data set.
-     */
-    protected function generateDataHash(array $data): string
-    {
-        // Filter the data to only include keys that match custom field slugs for this model
-        // Actually, just sorting and hashing the whole array is fine as long as it's consistent.
-        ksort($data);
-
-        return md5(json_encode($data));
-    }
-
-    /**
      * Ensure the data has been validated before processing.
      */
     protected function ensureDataIsValidated(array $data): void
@@ -272,7 +263,7 @@ class CustomFieldsService
             return;
         }
 
-        if (! $this->isValidated($data)) {
+        if (! $this->isValidated()) {
             throw ValidationIntegrityException::unvalidatedData();
         }
     }
@@ -296,7 +287,9 @@ class CustomFieldsService
 
         $rules = array_merge($rules, $this->getCustomRules($customField));
 
-        $finalRules = array_values(array_unique(array_filter($rules)));
+        $stringRules = array_filter($rules, 'is_string');
+        $otherRules = array_filter($rules, fn ($r) => ! is_string($r));
+        $finalRules = array_merge(array_values(array_unique($stringRules)), array_values($otherRules));
 
         return $this->mergePhoneRules($finalRules);
     }

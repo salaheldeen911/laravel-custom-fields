@@ -262,4 +262,48 @@ trait ValidatesFieldDefinition
             && is_numeric($this->validation_rules['min'])
             && is_numeric($this->validation_rules['max']);
     }
+
+    protected function prepareCustomFieldInput(): void
+    {
+        if ($this->has('options')) {
+            $options = $this->options;
+            if (is_string($options)) {
+                $options = json_decode($options, true);
+            }
+            if (is_array($options)) {
+                $options = array_values(array_filter($options, fn ($value) => ! is_null($value) && $value !== ''));
+            }
+            $this->merge(['options' => $options]);
+        }
+
+        if ($this->has('validation_rules')) {
+            $rules = $this->validation_rules;
+            if (is_string($rules)) {
+                $decoded = json_decode($rules, true);
+                $rules = is_array($decoded) ? $decoded : [];
+            }
+
+            if (is_array($rules) && $this->input('type')) {
+                $rules = $this->prepareRulesForStorage($rules, $this->input('type'));
+            }
+
+            $this->merge(['validation_rules' => $rules]);
+        }
+    }
+
+    protected function customFieldMessages(): array
+    {
+        return [
+            'model.in' => 'The selected model is invalid.',
+            'type.in' => 'The selected field type is invalid.',
+            'options.required_if' => 'Options are required for this field type.',
+            'name.unique' => 'A field with this name already exists for the selected model.',
+        ];
+    }
+
+    protected function onFailedCustomFieldValidation(\Illuminate\Contracts\Validation\Validator $validator): void
+    {
+        \Illuminate\Support\Facades\Log::debug('Custom Field Validation Failed:', $validator->errors()->toArray());
+        parent::failedValidation($validator);
+    }
 }

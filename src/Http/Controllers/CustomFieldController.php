@@ -85,7 +85,7 @@ class CustomFieldController extends Controller
         return redirect()->route('custom-fields.index')->with('success', 'Custom field restored successfully.');
     }
 
-    public function forceDelete(string $id): RedirectResponse
+    public function forceDestroy(string $id): RedirectResponse
     {
         $this->repository->forceDelete($id);
 

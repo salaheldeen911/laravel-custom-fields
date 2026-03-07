@@ -36,30 +36,29 @@ class ValidationRulesTest extends TestCase
         ]);
     }
 
-    // #[\PHPUnit\Framework\Attributes\Test]
-    // public function min_rule_behaves_as_string_length_for_text_fields()
-    // {
-    //     // 1. Create a Text Field with Min: 5
-    //     $field = CustomField::create([
-    //         'name' => 'bio',
-    //         'model' => 'test_model',
-    //         'type' => 'text',
-    //         'validation_rules' => ['min' => 5],
-    //     ]);
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function min_rule_behaves_as_string_length_for_text_fields()
+    {
+        $field = CustomField::create([
+            'name' => 'bio',
+            'model' => 'test_model',
+            'type' => 'text',
+            'validation_rules' => ['min' => 5],
+        ]);
 
-    //     $service = app(CustomFieldsService::class);
+        $service = app(CustomFieldsService::class);
 
-    //     // 2. Test Invalid Input (Length < 5)
-    //     $dataInvalid = ['bio' => 'abcd'];
-    //     $validator = $service->validate('test_model', $dataInvalid);
-    //     $this->assertTrue($validator->fails(), 'Text field with length 4 should fail min:5');
-    //     $this->assertArrayHasKey('bio', $validator->errors()->toArray());
+        // Test Invalid Input (Length < 5)
+        $dataInvalid = ['bio' => 'abcd'];
+        $validator = $service->validate('test_model', $dataInvalid);
+        $this->assertTrue($validator->fails(), 'Text field with length 4 should fail min:5');
+        $this->assertArrayHasKey('bio', $validator->errors()->toArray());
 
-    //     // 3. Test Valid Input (Length >= 5)
-    //     $dataValid = ['bio' => 'abcde'];
-    //     $validator = $service->validate('test_model', $dataValid);
-    //     $this->assertTrue($validator->passes(), 'Text field with length 5 should pass min:5');
-    // }
+        // Test Valid Input (Length >= 5)
+        $dataValid = ['bio' => 'abcde'];
+        $validator = $service->validate('test_model', $dataValid);
+        $this->assertTrue($validator->passes(), 'Text field with length 5 should pass min:5');
+    }
 
     #[\PHPUnit\Framework\Attributes\Test]
     public function min_rule_behaves_as_numeric_value_for_number_fields()
