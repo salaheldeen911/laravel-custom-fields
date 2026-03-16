@@ -10,6 +10,7 @@ use Salah\LaravelCustomFields\Http\Requests\UpdateCustomFieldRequest;
 use Salah\LaravelCustomFields\Http\Resources\CustomFieldResource;
 use Salah\LaravelCustomFields\Repositories\CustomFieldRepositoryInterface;
 use Salah\LaravelCustomFields\Services\CustomFieldsMetaService;
+use Salah\LaravelCustomFields\DTOs\CustomFieldDTO;
 
 class CustomFieldApiController extends Controller
 {
@@ -54,7 +55,7 @@ class CustomFieldApiController extends Controller
 
     public function store(StoreCustomFieldRequest $request): JsonResponse
     {
-        $customField = $this->repository->store($request->validated());
+        $customField = $this->repository->store(CustomFieldDTO::fromArray($request->validated()));
 
         $this->metaService->clearCache();
 
@@ -77,7 +78,7 @@ class CustomFieldApiController extends Controller
 
     public function update(UpdateCustomFieldRequest $request, string $id): JsonResponse
     {
-        $customField = $this->repository->update($id, $request->validated());
+        $customField = $this->repository->update($id, CustomFieldDTO::fromArray($request->validated()));
 
         $this->metaService->clearCache();
 
@@ -102,12 +103,13 @@ class CustomFieldApiController extends Controller
 
     public function restore(string $id): JsonResponse
     {
-        $customField = $this->repository->restore($id);
+        $this->repository->restore($id);
+        $customField = $this->repository->findById($id, true);
 
         return response()->json([
             'success' => true,
             'message' => 'Custom field restored successfully.',
-            'data' => new CustomFieldResource($this->repository->findById($id, true)),
+            'data' => new CustomFieldResource($customField),
         ]);
     }
 

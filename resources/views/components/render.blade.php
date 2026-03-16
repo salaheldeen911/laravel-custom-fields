@@ -27,7 +27,7 @@
                     <x-dynamic-component
                         :component="'custom-fields::types.'.$field->type"
                         :field="$field"
-                        :value="$field->currentValue($model)"
+                        :value="$field->present()->currentValue($model)"
                         :input-name="$field->slug" />
                 </div>
 

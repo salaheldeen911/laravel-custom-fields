@@ -5,11 +5,9 @@ namespace Salah\LaravelCustomFields\Http\Requests;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Salah\LaravelCustomFields\FieldTypeRegistry;
-use Salah\LaravelCustomFields\Traits\ValidatesFieldDefinition;
 
-class UpdateCustomFieldRequest extends FormRequest
+class UpdateCustomFieldRequest extends CustomFieldBaseRequest
 {
-    use ValidatesFieldDefinition;
 
     public function authorize(): bool
     {

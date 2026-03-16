@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Salah\LaravelCustomFields\Filters\FilterEngine;
 use Salah\LaravelCustomFields\Models\CustomField;
+use Salah\LaravelCustomFields\DTOs\CustomFieldDTO;
 
 class CustomFieldRepository implements CustomFieldRepositoryInterface
 {
@@ -29,15 +30,15 @@ class CustomFieldRepository implements CustomFieldRepositoryInterface
         return $query->findOrFail($id);
     }
 
-    public function store(array $data): CustomField
+    public function store(CustomFieldDTO $data): CustomField
     {
-        return CustomField::create($data);
+        return CustomField::create($data->toArray());
     }
 
-    public function update(string|int $id, array $data): CustomField
+    public function update(string|int $id, CustomFieldDTO $data): CustomField
     {
         $field = $this->findById($id, true);
-        $field->update($data);
+        $field->update($data->toArray());
 
         return $field;
     }

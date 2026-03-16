@@ -45,6 +45,7 @@ return [
     'cache' => [
         'ttl' => 3600, // seconds (1 hour)
         'prefix' => 'custom_fields_',
+        'octane_compatibility' => true, // Set to false if you want to use static in-memory caching (not recommended for Octane)
     ],
 
     /**

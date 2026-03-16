@@ -2,6 +2,7 @@
 
 namespace Salah\LaravelCustomFields;
 
+use Illuminate\Support\Facades\Log;
 use Salah\LaravelCustomFields\Commands\InstallCommand;
 use Salah\LaravelCustomFields\Console\Commands\PruneCustomFieldsCommand;
 use Salah\LaravelCustomFields\FieldTypes\CheckboxField;
@@ -17,6 +18,10 @@ use Salah\LaravelCustomFields\FieldTypes\TextAreaField;
 use Salah\LaravelCustomFields\FieldTypes\TextField;
 use Salah\LaravelCustomFields\FieldTypes\TimeField;
 use Salah\LaravelCustomFields\FieldTypes\UrlField;
+use Salah\LaravelCustomFields\Models\CustomField;
+use Salah\LaravelCustomFields\Models\CustomFieldValue;
+use Salah\LaravelCustomFields\Observers\CustomFieldObserver;
+use Salah\LaravelCustomFields\Observers\CustomFieldValueObserver;
 use Salah\LaravelCustomFields\Repositories\CustomFieldRepository;
 use Salah\LaravelCustomFields\Repositories\CustomFieldRepositoryInterface;
 use Salah\LaravelCustomFields\Services\CustomFieldsService;
@@ -106,11 +111,7 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
             return $registry;
         });
 
-        $this->app->singleton(CustomFieldsService::class, function ($app) {
-            return new CustomFieldsService(
-                $app->make(CustomFieldRepositoryInterface::class)
-            );
-        });
+        $this->app->bind(CustomFieldsService::class);
 
         $this->app->bind(
             CustomFieldRepositoryInterface::class,
@@ -123,12 +124,15 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
         $this->warnIfNoAuthMiddleware();
 
         if (config('custom-fields.routing.web.enabled', true)) {
-            $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+            $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
         }
 
         if (config('custom-fields.routing.api.enabled', false)) {
-            $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
+            $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
         }
+
+        CustomField::observe(CustomFieldObserver::class);
+        CustomFieldValue::observe(CustomFieldValueObserver::class);
     }
 
     protected function warnIfNoAuthMiddleware(): void
@@ -141,12 +145,12 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
             }
 
             $middleware = config("custom-fields.routing.{$route}.middleware", []);
-            $hasAuth = collect($middleware)->contains(fn ($m) => str_starts_with($m, 'auth'));
+            $hasAuth = collect($middleware)->contains(fn($m) => str_starts_with($m, 'auth'));
 
             if (! $hasAuth) {
-                \Illuminate\Support\Facades\Log::warning(
+                Log::warning(
                     "Laravel Custom Fields: {$route} routes are enabled without auth middleware. "
-                    . "Add authentication middleware in config/custom-fields.php to protect your routes."
+                        . "Add authentication middleware in config/custom-fields.php to protect your routes."
                 );
             }
         }

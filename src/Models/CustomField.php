@@ -5,10 +5,10 @@ namespace Salah\LaravelCustomFields\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
+
 use Salah\LaravelCustomFields\FieldTypeRegistry;
 use Salah\LaravelCustomFields\FieldTypes\FieldType;
+use Salah\LaravelCustomFields\Presenters\CustomFieldPresenter;
 
 class CustomField extends Model
 {
@@ -43,81 +43,8 @@ class CustomField extends Model
         return app(FieldTypeRegistry::class)->get($this->type);
     }
 
-    /**
-     * Get the current value for the field, considering the model and old input.
-     */
-    public function currentValue($model = null): mixed
+    public function present(): CustomFieldPresenter
     {
-        $dbValue = null;
-
-        if ($model && method_exists($model, 'custom')) {
-            $dbValue = $model->custom($this->slug);
-        }
-
-        // Format the value based on the field type handler
-        $formattedValue = $this->handler() ? $this->handler()->formatValue($dbValue) : $dbValue;
-
-        // Old input takes precedence (using slug as the key)
-        return old($this->slug, $formattedValue);
-    }
-
-    /**
-     * Prepare rules for UI display (converting "1" to true for checkboxes)
-     */
-    public function prepareRulesForUi(): array
-    {
-        $rules = $this->validation_rules ?: [];
-        $handler = $this->handler();
-
-        if (! $handler) {
-            return $rules;
-        }
-
-        $allowedRules = $handler->allowedRules();
-        $booleanRules = [];
-        foreach ($allowedRules as $rule) {
-            if (in_array('boolean', $rule->baseRule())) {
-                $booleanRules[] = $rule->name();
-            }
-        }
-
-        foreach ($rules as $key => $value) {
-            if (in_array($key, $booleanRules)) {
-                $rules[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-            }
-        }
-
-        return $rules;
-    }
-
-    protected static function booted()
-    {
-        static::creating(function ($customField) {
-            if (empty($customField->slug)) {
-                $customField->slug = Str::slug($customField->name);
-            }
-        });
-
-        static::updating(function ($customField) {
-            if ($customField->isDirty('name') && ! $customField->isDirty('slug')) {
-                $customField->slug = Str::slug($customField->name);
-            }
-        });
-
-        static::saved(function ($customField) {
-            Cache::forget(config('custom-fields.cache.prefix', 'custom_fields_') . $customField->attributes['model']);
-        });
-
-        static::deleted(function ($customField) {
-            Cache::forget(config('custom-fields.cache.prefix', 'custom_fields_') . $customField->attributes['model']);
-        });
-
-        static::forceDeleting(function ($customField) {
-            if ($customField->type === 'file') {
-                $customField->values()->each(function ($value) {
-                    $value->delete();
-                });
-            }
-        });
+        return new CustomFieldPresenter($this);
     }
 }

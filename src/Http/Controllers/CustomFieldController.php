@@ -10,6 +10,7 @@ use Salah\LaravelCustomFields\Http\Requests\StoreCustomFieldRequest;
 use Salah\LaravelCustomFields\Http\Requests\UpdateCustomFieldRequest;
 use Salah\LaravelCustomFields\Repositories\CustomFieldRepositoryInterface;
 use Salah\LaravelCustomFields\Services\CustomFieldsMetaService;
+use Salah\LaravelCustomFields\DTOs\CustomFieldDTO;
 
 class CustomFieldController extends Controller
 {
@@ -38,7 +39,7 @@ class CustomFieldController extends Controller
 
     public function store(StoreCustomFieldRequest $request): RedirectResponse
     {
-        $this->repository->store($request->validated());
+        $this->repository->store(CustomFieldDTO::fromArray($request->validated()));
 
         $this->metaService->clearCache();
 
@@ -62,7 +63,7 @@ class CustomFieldController extends Controller
 
     public function update(UpdateCustomFieldRequest $request, string $id): RedirectResponse
     {
-        $this->repository->update($id, $request->validated());
+        $this->repository->update($id, CustomFieldDTO::fromArray($request->validated()));
 
         $this->metaService->clearCache();
 

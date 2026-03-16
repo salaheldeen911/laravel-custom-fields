@@ -176,7 +176,7 @@
 
                                 <!-- Single Select -->
                                 <template x-if="rule.ui.tag === 'select' && rule.ui.attribute !== 'multiple'">
-                                    <select 
+                                    <select
                                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium transition-all"
                                         x-model="rulesValues[rule.name]">
                                         <option value="">Select Option</option>
@@ -197,10 +197,10 @@
                                                 (opt.keywords && opt.keywords.toLowerCase().includes(this.search.toLowerCase()))
                                             );
                                         }
-                                    }" 
-                                    x-init="rulesValues[rule.name] = Array.isArray(rulesValues[rule.name]) ? rulesValues[rule.name] : []"
-                                    class="border border-gray-200 rounded-xl bg-white overflow-hidden">
-                                        
+                                    }"
+                                        x-init="rulesValues[rule.name] = Array.isArray(rulesValues[rule.name]) ? rulesValues[rule.name] : []"
+                                        class="border border-gray-200 rounded-xl bg-white overflow-hidden">
+
                                         <!-- Search Header -->
                                         <div class="p-2 border-b border-gray-100 bg-gray-50">
                                             <div class="relative">
@@ -209,9 +209,9 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                                     </svg>
                                                 </div>
-                                                <input type="text" 
-                                                    x-model="search" 
-                                                    placeholder="Search countries..." 
+                                                <input type="text"
+                                                    x-model="search"
+                                                    placeholder="Search countries..."
                                                     class="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
                                             </div>
                                         </div>
@@ -220,8 +220,8 @@
                                         <div class="h-48 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-gray-200 space-y-1">
                                             <template x-for="option in filteredOptions" :key="option.value">
                                                 <label class="flex items-center px-2 py-1.5 rounded-lg hover:bg-indigo-50 cursor-pointer transition-colors group">
-                                                    <input type="checkbox" 
-                                                        :value="option.value" 
+                                                    <input type="checkbox"
+                                                        :value="option.value"
                                                         x-model="rulesValues[rule.name]"
                                                         class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                                                     <span class="ml-3 text-sm text-gray-700 group-hover:text-indigo-900" x-text="option.label"></span>
@@ -232,7 +232,7 @@
                                                 No results found.
                                             </div>
                                         </div>
-                                        
+
                                         <!-- Footer Info -->
                                         <div class="bg-gray-50 px-3 py-2 border-t border-gray-100 text-xs text-gray-500 flex justify-between items-center">
                                             <span>Selected: <span x-text="rulesValues[rule.name] ? rulesValues[rule.name].length : 0" class="font-bold text-indigo-600"></span></span>
@@ -242,7 +242,7 @@
                                 </template>
 
                                 <template x-if="rule.ui.tag === 'input'">
-                                    <input :type="rule.ui.attribute" 
+                                    <input :type="rule.ui.attribute"
                                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium placeholder:text-[11px] placeholder:font-normal"
                                         :placeholder="rule.ui.placeholder || 'Enter value...'"
                                         x-model="rulesValues[rule.name]">
@@ -275,7 +275,7 @@
             meta: window.CustomFieldsMeta,
             selectedType: @json(old('type', $customField->type)),
             options: @json(old('options', $customField->options ?: [''])),
-            rulesValues: @json(old('validation_rules', $customField->prepareRulesForUi() ?: (object)[])),
+            rulesValues: @json(old('validation_rules', $customField->present()->prepareRulesForUi() ?: (object)[])),
 
             get currentType() {
                 return this.meta.types.find(t => t.name === this.selectedType);

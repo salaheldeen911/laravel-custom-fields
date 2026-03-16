@@ -3,14 +3,13 @@
 namespace Salah\LaravelCustomFields\Services;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Validator as ValidationValidator;
 use Salah\LaravelCustomFields\Exceptions\ValidationIntegrityException;
-use Salah\LaravelCustomFields\Models\CustomField;
-use Salah\LaravelCustomFields\Models\CustomFieldValue;
 use Salah\LaravelCustomFields\Repositories\CustomFieldRepositoryInterface;
+use Salah\LaravelCustomFields\Actions\SetupValidationRulesAction;
+use Salah\LaravelCustomFields\Actions\ValidateCustomFieldsAction;
+use Salah\LaravelCustomFields\Actions\StoreCustomFieldValuesAction;
+use Salah\LaravelCustomFields\Actions\ProcessCustomFieldFilesAction;
 use Salah\LaravelCustomFields\ValidationRuleRegistry;
 
 class CustomFieldsService
@@ -18,7 +17,11 @@ class CustomFieldsService
     protected bool $validated = false;
 
     public function __construct(
-        protected CustomFieldRepositoryInterface $repository
+        protected CustomFieldRepositoryInterface $repository,
+        protected SetupValidationRulesAction $setupRulesAction,
+        protected ValidateCustomFieldsAction $validateAction,
+        protected StoreCustomFieldValuesAction $storeAction,
+        protected ProcessCustomFieldFilesAction $processFilesAction
     ) {}
 
     /**
@@ -26,14 +29,7 @@ class CustomFieldsService
      */
     public function getValidationRules(string $modelClass): array
     {
-        $customFields = $this->repository->getByModel($modelClass);
-        $rules = [];
-
-        foreach ($customFields as $customField) {
-            $rules[$customField->slug] = $this->getValueRule($customField);
-        }
-
-        return $rules;
+        return $this->setupRulesAction->execute($modelClass);
     }
 
     /**
@@ -41,16 +37,9 @@ class CustomFieldsService
      */
     public function validate(string $modelClass, array $data): ValidationValidator
     {
-        $rules = $this->getValidationRules($modelClass);
-        $validator = Validator::make($data, $rules);
-
-        $validator->after(function ($validator) {
-            if (! $validator->errors()->any()) {
-                $this->markAsValidated();
-            }
+        return $this->validateAction->execute($modelClass, $data, function () {
+            $this->markAsValidated();
         });
-
-        return $validator;
     }
 
     /**
@@ -74,112 +63,9 @@ class CustomFieldsService
      */
     public function storeValues(Model $model, array $data): void
     {
-        $this->ensureDataIsValidated($data);
+        $this->ensureDataIsValidated();
 
-        $modelAlias = $model::getCustomFieldModelAlias();
-        $customFields = $this->repository->getByModelAndSlugs($modelAlias, array_keys($data))
-            ->keyBy('slug');
-
-        $values = [];
-        foreach ($data as $fieldSlug => $value) {
-            $customField = $customFields->get($fieldSlug);
-
-            if (! $customField) {
-                continue;
-            }
-
-            $values[] = [
-                'custom_field_id' => $customField->id,
-                'model_id' => $model->getKey(),
-                'model_type' => $model->getMorphClass(),
-                'value' => $this->prepareValueForStorage($value),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-        }
-
-        if (! empty($values)) {
-            CustomFieldValue::upsert(
-                $values,
-                ['custom_field_id', 'model_type', 'model_id'],
-                ['value', 'updated_at']
-            );
-        }
-    }
-
-    /**
-     * Handle file uploads if present in the value.
-     */
-    protected function prepareValueForStorage($value, ?string $oldValue = null): mixed
-    {
-        // Handle Multiple Files (Array of UploadedFiles) - REMOVED
-        if (is_array($value) && ! empty($value) && $value[0] instanceof UploadedFile) {
-            throw new \InvalidArgumentException('Multiple file upload is not supported.');
-        }
-
-        // Handle Single File (UploadedFile)
-        if ($value instanceof UploadedFile) {
-            if ($oldValue && config('custom-fields.files.cleanup', true)) {
-                $this->deleteFile($oldValue);
-            }
-
-            return json_encode($this->storeFileItem($value));
-        }
-
-        // HTML Sanitization for Strings
-        if (is_string($value) && config('custom-fields.security.sanitize_html', true)) {
-            // We allow NO tags. Purely text.
-            $value = strip_tags($value);
-        }
-
-        return is_array($value) ? json_encode($value) : $value;
-    }
-
-    protected function storeFileItem(UploadedFile $file): array
-    {
-        $disk = config('custom-fields.files.disk', 'public');
-        $folder = config('custom-fields.files.path', 'custom-fields');
-        $path = $file->store($folder, $disk);
-
-        return [
-            'path' => $path,
-            'original_name' => $file->getClientOriginalName(),
-            'mime_type' => $file->getMimeType(),
-            'size' => $file->getSize(),
-        ];
-    }
-
-    protected function deleteFile(string $value): void
-    {
-        $data = json_decode($value, true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return;
-        }
-
-        $disk = config('custom-fields.files.disk', 'public');
-
-        // Handle Single File
-        if (isset($data['path']) && Storage::disk($disk)->exists($data['path'])) {
-            Storage::disk($disk)->delete($data['path']);
-        }
-    }
-
-    /**
-     * Delete all files associated with a model's custom fields.
-     */
-    public function cleanupFilesForModel(Model $model): void
-    {
-        // Get all custom field values for this model that are of type 'file'
-        // We need to query values where the custom field type is 'file'
-        $values = $model->customFieldsValues()
-            ->whereHas('customField', function ($q) {
-                $q->where('type', 'file');
-            })
-            ->get();
-
-        foreach ($values as $fieldValue) {
-            $this->deleteFile($fieldValue->getAttributes()['value']);
-        }
+        $this->storeAction->execute($model, $data);
     }
 
     /**
@@ -187,77 +73,25 @@ class CustomFieldsService
      */
     public function updateValues(Model $model, array $data): void
     {
-        $this->ensureDataIsValidated($data);
+        $this->ensureDataIsValidated();
 
-        $modelAlias = $model::getCustomFieldModelAlias();
-        $customFields = $this->repository->getByModelAndSlugs($modelAlias, array_keys($data))
-            ->keyBy('slug');
-
-        $values = [];
-        foreach ($data as $fieldSlug => $value) {
-            $customField = $customFields->get($fieldSlug);
-
-            if (! $customField) {
-                continue;
-            }
-
-            // Fetch existing value to check if we need to clean up old files
-            // This is a bit expensive but necessary for file cleanup during updates
-            // Optimization: Only do this if the new value is an UploadedFile
-            $oldValue = null;
-            if ($value instanceof UploadedFile) {
-                $existing = CustomFieldValue::where('custom_field_id', $customField->id)
-                    ->where('model_type', $model->getMorphClass())
-                    ->where('model_id', $model->getKey())
-                    ->first();
-                // Access raw attribute to get JSON string, avoiding accessor usage if possible,
-                // but our accessor handles JSON decoding, so we need raw for deleteFile logic which expects JSON string
-                // Wait, our deleteFile expects the *stored string*.
-                $oldValue = $existing ? $existing->getAttributes()['value'] : null;
-            }
-
-            $values[] = [
-                'custom_field_id' => $customField->id,
-                'model_id' => $model->getKey(),
-                'model_type' => $model->getMorphClass(),
-                'value' => $this->prepareValueForStorage($value, $oldValue),
-                'updated_at' => now(),
-            ];
-        }
-
-        if (! empty($values)) {
-            CustomFieldValue::upsert(
-                $values,
-                ['custom_field_id', 'model_type', 'model_id'],
-                ['value', 'updated_at']
-            );
-        }
+        $this->storeAction->update($model, $data);
     }
 
-    public function getValidationRuleDetails(): array
+    /**
+     * Delete all files associated with a model's custom fields.
+     */
+    public function cleanupFilesForModel(Model $model): void
     {
-        $registry = app(ValidationRuleRegistry::class);
-        $details = [];
-
-        foreach ($registry->all() as $rule) {
-            $baseRule = $rule->baseRule();
-            $serializableRules = array_values(array_filter($baseRule, fn ($r) => ! ($r instanceof \Closure)));
-
-            $details[$rule->name()] = [
-                'rule' => $serializableRules,
-                'label' => $rule->label(),
-                'tag' => $rule->htmlTag(),
-                'type' => $rule->htmlAttribute(),
-            ];
-        }
-
-        return $details;
+        $this->processFilesAction->cleanupFilesForModel($model);
     }
+
+
 
     /**
      * Ensure the data has been validated before processing.
      */
-    protected function ensureDataIsValidated(array $data): void
+    protected function ensureDataIsValidated(): void
     {
         if (! config('custom-fields.strict_validation', true)) {
             return;
@@ -266,112 +100,5 @@ class CustomFieldsService
         if (! $this->isValidated()) {
             throw ValidationIntegrityException::unvalidatedData();
         }
-    }
-
-    protected function getValueRule(CustomField $customField): array
-    {
-        $handler = $customField->handler();
-
-        if (! $handler) {
-            throw new \RuntimeException("Field type '{$customField->type}' is not registered.");
-        }
-
-        $rules = [
-            $this->getRequirementRule($customField),
-            ...$handler->baseRule(),
-        ];
-
-        if ($optionsRule = $this->getOptionsRule($customField, $handler)) {
-            $rules[] = $optionsRule;
-        }
-
-        $rules = array_merge($rules, $this->getCustomRules($customField));
-
-        $stringRules = array_filter($rules, 'is_string');
-        $otherRules = array_filter($rules, fn ($r) => ! is_string($r));
-        $finalRules = array_merge(array_values(array_unique($stringRules)), array_values($otherRules));
-
-        return $this->mergePhoneRules($finalRules);
-    }
-
-    protected function getRequirementRule(CustomField $customField): string
-    {
-        return $customField->required ? 'required' : 'nullable';
-    }
-
-    protected function getOptionsRule(CustomField $customField, $handler): ?string
-    {
-        if ($handler->hasOptions() && ! empty($customField->options)) {
-            return 'in:'.implode(',', $customField->options);
-        }
-
-        return null;
-    }
-
-    protected function getCustomRules(CustomField $customField): array
-    {
-        $handler = $customField->handler();
-
-        if (! $handler) {
-            return [];
-        }
-
-        $allowedRules = $handler->allowedRules();
-        $storedRules = $customField->validation_rules ?: [];
-        $rules = [];
-
-        foreach ($allowedRules as $rule) {
-            $ruleObj = is_string($rule) ? app($rule) : $rule;
-            $ruleName = $ruleObj->name();
-
-            $value = array_key_exists($ruleName, $storedRules)
-                ? $storedRules[$ruleName]
-                : null;
-
-            if (is_null($value)) {
-                continue;
-            }
-
-            $baseRule = $ruleObj->baseRule();
-
-            if (in_array('boolean', $baseRule) && ! $value) {
-                continue;
-            }
-
-            if (! in_array('boolean', $baseRule) && $value === '') {
-                continue;
-            }
-
-            $rules[] = $ruleObj->apply($value);
-        }
-
-        return $rules;
-    }
-
-    /**
-     * Merge multiple phone rules into a single rule with comma-separated parameters.
-     * e.g. ['phone:US', 'phone:mobile'] -> ['phone:US,mobile']
-     */
-    private function mergePhoneRules(array $rules): array
-    {
-        $phoneParams = [];
-        $otherRules = [];
-
-        foreach ($rules as $rule) {
-            if (is_string($rule) && str_starts_with($rule, 'phone')) {
-                $params = explode(',', substr($rule, 6));
-                $phoneParams = array_merge($phoneParams, $params);
-            } else {
-                $otherRules[] = $rule;
-            }
-        }
-
-        if (! empty($phoneParams)) {
-            $uniqueParams = array_unique(array_filter($phoneParams));
-            // Re-assemble phone rule
-            $otherRules[] = 'phone:'.implode(',', $uniqueParams);
-        }
-
-        return $otherRules;
     }
 }

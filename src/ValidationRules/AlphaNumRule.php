@@ -34,3 +34,4 @@ class AlphaNumRule extends ValidationRule
         return 'alpha_num';
     }
 }
+

@@ -38,9 +38,15 @@ class PruneCustomFieldsCommand extends Command
 
         $this->info("Pruning custom fields deleted before {$threshold->toDateTimeString()}...");
 
-        $count = CustomField::onlyTrashed()
+        $count = 0;
+        CustomField::onlyTrashed()
             ->where('deleted_at', '<', $threshold)
-            ->forceDelete();
+            ->chunk(100, function ($fields) use (&$count) {
+                foreach ($fields as $field) {
+                    $field->forceDelete();
+                    $count++;
+                }
+            });
 
         $this->info("{$count} custom fields permanently deleted.");
 

@@ -75,3 +75,4 @@ class FieldValidationRule extends ValidationRule implements HasOptions
         return $this->rule;
     }
 }
+

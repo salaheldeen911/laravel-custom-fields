@@ -56,21 +56,21 @@ class FileField extends FieldType
      */
     public function formatValue(mixed $value): mixed
     {
+        $data = $value;
+
         if (is_string($value)) {
             $data = json_decode($value, true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
                 return $value;
             }
+        }
 
+        if (is_array($data) && isset($data['path'])) {
             $disk = config('custom-fields.files.disk', 'public');
+            $data['url'] = Storage::disk($disk)->url($data['path']);
 
-            // Handle Single File
-            if (is_array($data) && isset($data['path'])) {
-                $data['url'] = Storage::disk($disk)->url($data['path']);
-
-                return $data;
-            }
+            return $data;
         }
 
         return $value;

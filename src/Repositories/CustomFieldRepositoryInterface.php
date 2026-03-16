@@ -5,6 +5,7 @@ namespace Salah\LaravelCustomFields\Repositories;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Salah\LaravelCustomFields\Models\CustomField;
+use Salah\LaravelCustomFields\DTOs\CustomFieldDTO;
 
 interface CustomFieldRepositoryInterface
 {
@@ -12,9 +13,9 @@ interface CustomFieldRepositoryInterface
 
     public function findById(string|int $id, bool $withTrashed = false): CustomField;
 
-    public function store(array $data): CustomField;
+    public function store(CustomFieldDTO $data): CustomField;
 
-    public function update(string|int $id, array $data): CustomField;
+    public function update(string|int $id, CustomFieldDTO $data): CustomField;
 
     public function delete(string|int $id): bool;
 

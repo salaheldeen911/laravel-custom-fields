@@ -34,13 +34,20 @@ trait HasCustomFields
 
     public static function getCustomFieldModelAlias(): string
     {
-        if (isset(static::$modelAliasCache[static::class])) {
+        $useStaticCache = config('custom-fields.cache.octane_compatibility', true) === false;
+
+        if ($useStaticCache && isset(static::$modelAliasCache[static::class])) {
             return static::$modelAliasCache[static::class];
         }
 
         $alias = array_search(static::class, config('custom-fields.models', []));
+        $result = ($alias !== false ? $alias : static::class);
 
-        return static::$modelAliasCache[static::class] = ($alias !== false ? $alias : static::class);
+        if ($useStaticCache) {
+            static::$modelAliasCache[static::class] = $result;
+        }
+
+        return $result;
     }
 
     public static function customFields(): mixed
@@ -50,7 +57,7 @@ trait HasCustomFields
         $ttl = config('custom-fields.cache.ttl', 3600);
         $prefix = config('custom-fields.cache.prefix', 'custom_fields_');
 
-        return Cache::remember($prefix.$modelAlias, $ttl, function () use ($modelAlias) {
+        return Cache::remember($prefix . $modelAlias, $ttl, function () use ($modelAlias) {
             return app(CustomFieldRepositoryInterface::class)
                 ->getByModel($modelAlias);
         });
@@ -115,7 +122,7 @@ trait HasCustomFields
     {
         // Filter out values belonging to soft-deleted custom fields to prevent crashes
         return $this->customFieldsValues
-            ->filter(fn ($item) => $item->customField !== null)
+            ->filter(fn($item) => $item->customField !== null)
             ->keyBy('customField.slug')
             ->map->value
             ->toArray();
