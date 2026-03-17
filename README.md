@@ -26,7 +26,7 @@ Tired of messy "extra_attributes" JSON columns that are impossible to validate? 
 ## 📦 Installation
 
 ```bash
-composer require salaheldeen911/laravel-custom-fields
+composer require salah/laravel-custom-fields
 ```
 
 Install the package (publishes config, migrations, and assets):
