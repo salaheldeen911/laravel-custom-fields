@@ -61,6 +61,9 @@ php artisan custom-fields:install
     *   **Security**: Enable `sanitize_html` to automatically strip tags from text inputs.
     *   **Maintenance**: Configure `pruning` retention periods for soft-deleted fields.
 
+> [!IMPORTANT]
+> **API Security**: If you enable API or Web routes in config, the package will automatically check for authentication middleware. If missing, it will log a warning. Ensure your routes are protected by adding `auth` middleware in the config.
+
 ---
 
 ## 🧹 Maintenance & Pruning
@@ -145,6 +148,9 @@ If you prefer validating in the controller, use the helper method on the model:
 $validated = $request->validate(array_merge([
     'name' => 'required',
 ], User::getCustomFieldRules()));
+
+// Note: getCustomFieldRules() is a helper from the HasCustomFields trait
+// getCustomFieldModelAlias() is also available for programmatic model resolution
 ```
 
 ### 3. Validation (Option C: Manual Service)
@@ -249,7 +255,7 @@ public function edit(User $user)
 | `time` | 🕒 | `<input type="time">` | `required` (Standard string validation) |
 | `select` | 🔽 | `<select>` | `required` (Strictly validated against options) |
 | `checkbox` | ✅ | `<input type="checkbox">` | `required` |
-| `phone` | 📞 | `<input type="tel">` | `phone` (Supports formats or `AUTO` detection) |
+| `phone` | 📞 | `<input type="tel">` | `phone`, `mobile`, `landline` (Supports formats or `AUTO` detection) |
 | `email` | ✉️ | `<input type="email">` | `min`, `max`, `regex` (Native email validation) |
 | `url` | 🔗 | `<input type="url">` | `min`, `max`, `regex` (Native URL validation) |
 | `color` | 🎨 | `<input type="color">` | `required` (Validates hex color format) |
@@ -336,6 +342,8 @@ If you are building your own Admin Dashboard in a JS framework, use these endpoi
 | **POST** | `/api/custom-fields` | Create a new field |
 | **PUT** | `/api/custom-fields/{id}` | Update field configuration |
 | **DELETE** | `/api/custom-fields/{id}` | Soft delete a field |
+| **POST** | `/api/custom-fields/{id}/restore` | Restore a soft-deleted field |
+| **DELETE** | `/api/custom-fields/{id}/force` | Permanently delete a field |
 
 #### Example: Creating a Field
 **Payload (`POST /api/custom-fields`):**
