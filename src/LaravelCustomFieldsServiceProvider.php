@@ -111,7 +111,7 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
             return $registry;
         });
 
-        $this->app->bind(CustomFieldsService::class);
+        $this->app->singleton(CustomFieldsService::class);
 
         $this->app->bind(
             CustomFieldRepositoryInterface::class,

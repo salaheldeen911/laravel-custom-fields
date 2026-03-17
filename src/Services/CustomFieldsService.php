@@ -101,4 +101,12 @@ class CustomFieldsService
             throw ValidationIntegrityException::unvalidatedData();
         }
     }
+
+    /**
+     * Reset the validation state.
+     */
+    public function reset(): void
+    {
+        $this->validated = false;
+    }
 }
