@@ -13,7 +13,7 @@ use Salah\LaravelCustomFields\Models\CustomField;
 
 class FilterEngine
 {
-    private const FILTERS = [
+    protected array $filters = [
         'search' => SearchFilter::class,
         'model' => ModelFilter::class,
         'type' => TypeFilter::class,
@@ -28,6 +28,11 @@ class FilterEngine
         $this->model = new CustomField;
     }
 
+    public function registerFilter(string $name, string $filterClass): void
+    {
+        $this->filters[$name] = $filterClass;
+    }
+
     public function apply(array $filters): Builder
     {
         $query = $this->model->newQuery();
@@ -37,8 +42,8 @@ class FilterEngine
                 continue;
             }
 
-            if (isset(self::FILTERS[$name])) {
-                $filterClass = self::FILTERS[$name];
+            if (isset($this->filters[$name])) {
+                $filterClass = $this->filters[$name];
                 $query = $filterClass::apply($query, $value);
             }
         }

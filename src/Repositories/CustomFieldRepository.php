@@ -4,15 +4,19 @@ namespace Salah\LaravelCustomFields\Repositories;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Salah\LaravelCustomFields\DTOs\CustomFieldDTO;
 use Salah\LaravelCustomFields\Filters\FilterEngine;
 use Salah\LaravelCustomFields\Models\CustomField;
-use Salah\LaravelCustomFields\DTOs\CustomFieldDTO;
 
 class CustomFieldRepository implements CustomFieldRepositoryInterface
 {
+    public function __construct(
+        protected FilterEngine $filterEngine
+    ) {}
+
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        return (new FilterEngine)
+        return $this->filterEngine
             ->apply($filters)
             ->latest()
             ->paginate($perPage)
@@ -48,9 +52,12 @@ class CustomFieldRepository implements CustomFieldRepositoryInterface
         return $this->findById($id)->delete();
     }
 
-    public function restore(string|int $id): bool
+    public function restore(string|int $id): CustomField
     {
-        return CustomField::onlyTrashed()->findOrFail($id)->restore();
+        $field = CustomField::onlyTrashed()->findOrFail($id);
+        $field->restore();
+
+        return $field;
     }
 
     public function forceDelete(string|int $id): bool

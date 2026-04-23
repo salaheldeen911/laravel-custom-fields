@@ -71,21 +71,4 @@ abstract class FieldType implements ConfigurableElement
     {
         return $value;
     }
-
-    /**
-     * Validate the rules provided by the user against this type's capabilities.
-     * This ensures the user doesn't add 'min' to a 'boolean' field if not supported.
-     */
-    public function validateRules(array $rules): void
-    {
-        $allowedRules = $this->allowedRules();
-        $allowedRuleNames = array_map(fn (ValidationRule $rule) => $rule->name(), $allowedRules);
-
-        foreach (array_keys($rules) as $rule) {
-            if (! in_array($rule, $allowedRuleNames)) {
-                throw new \InvalidArgumentException("Rule '$rule' is not allowed for field type '{$this->name()}'");
-            }
-            // Additional check for rule value type could go here
-        }
-    }
 }

@@ -52,4 +52,3 @@ class NotRegexRule extends ValidationRule
         return "not_regex:/{$value}/";
     }
 }
-

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->json('options')->nullable();
             $table->json('validation_rules')->nullable();
             $table->unique(['model', 'slug'], 'model_field_slug_unique');
+            $table->unique(['model', 'name'], 'model_field_name_unique');
             $table->softDeletes();
             $table->timestamps();
         });

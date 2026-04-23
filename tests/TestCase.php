@@ -3,6 +3,8 @@
 namespace Salah\LaravelCustomFields\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Salah\LaravelCustomFields\LaravelCustomFieldsServiceProvider;
 
@@ -31,7 +33,7 @@ class TestCase extends Orchestra
         $migration = include __DIR__.'/../database/migrations/create_custom_fields_table.php';
         $migration->up();
 
-        \Illuminate\Support\Facades\Schema::create('posts', function (\Illuminate\Database\Schema\Blueprint $table) {
+        Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->string('title')->nullable();
             $table->timestamps();

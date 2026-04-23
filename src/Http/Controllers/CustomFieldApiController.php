@@ -4,13 +4,13 @@ namespace Salah\LaravelCustomFields\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
+use Salah\LaravelCustomFields\DTOs\CustomFieldDTO;
 use Salah\LaravelCustomFields\Http\Requests\FilterCustomFieldRequest;
 use Salah\LaravelCustomFields\Http\Requests\StoreCustomFieldRequest;
 use Salah\LaravelCustomFields\Http\Requests\UpdateCustomFieldRequest;
 use Salah\LaravelCustomFields\Http\Resources\CustomFieldResource;
 use Salah\LaravelCustomFields\Repositories\CustomFieldRepositoryInterface;
 use Salah\LaravelCustomFields\Services\CustomFieldsMetaService;
-use Salah\LaravelCustomFields\DTOs\CustomFieldDTO;
 
 class CustomFieldApiController extends Controller
 {
@@ -103,8 +103,7 @@ class CustomFieldApiController extends Controller
 
     public function restore(string $id): JsonResponse
     {
-        $this->repository->restore($id);
-        $customField = $this->repository->findById($id, true);
+        $customField = $this->repository->restore($id);
 
         return response()->json([
             'success' => true,

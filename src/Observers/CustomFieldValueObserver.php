@@ -2,8 +2,8 @@
 
 namespace Salah\LaravelCustomFields\Observers;
 
-use Salah\LaravelCustomFields\Models\CustomFieldValue;
 use Salah\LaravelCustomFields\Actions\ProcessCustomFieldFilesAction;
+use Salah\LaravelCustomFields\Models\CustomFieldValue;
 
 class CustomFieldValueObserver
 {
@@ -13,13 +13,20 @@ class CustomFieldValueObserver
 
     public function deleted(CustomFieldValue $customFieldValue): void
     {
-        // Check if value looks like a file metadata JSON
-        $value = $customFieldValue->getAttributes()['value'] ?? null;
-        if ($value && (str_starts_with($value, '{') || str_starts_with($value, '['))) {
-            if (! config('custom-fields.files.cleanup', true)) {
-                return;
-            }
+        // Only cleanup if the related custom field is a file type
+        $customField = $customFieldValue->customField;
 
+        if (! $customField || $customField->type !== 'file') {
+            return;
+        }
+
+        if (! config('custom-fields.files.cleanup', true)) {
+            return;
+        }
+
+        $value = $customFieldValue->getAttributes()['value'] ?? null;
+
+        if ($value) {
             $this->processFilesAction->deleteFile($value);
         }
     }

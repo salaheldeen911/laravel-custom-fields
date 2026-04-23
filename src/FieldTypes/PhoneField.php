@@ -2,6 +2,7 @@
 
 namespace Salah\LaravelCustomFields\FieldTypes;
 
+use Salah\LaravelCustomFields\Services\CountryService;
 use Salah\LaravelCustomFields\ValidationRules\LandlineRule;
 use Salah\LaravelCustomFields\ValidationRules\MobileRule;
 use Salah\LaravelCustomFields\ValidationRules\PhoneRule;
@@ -38,10 +39,17 @@ class PhoneField extends FieldType
         return ['string'];
     }
 
+    protected CountryService $countryService;
+
+    public function __construct(CountryService $countryService)
+    {
+        $this->countryService = $countryService;
+    }
+
     public function allowedRules(): array
     {
         return [
-            new PhoneRule,
+            new PhoneRule($this->countryService),
             new MobileRule,
             new LandlineRule,
         ];

@@ -3,17 +3,10 @@
 namespace Salah\LaravelCustomFields\Http\Requests;
 
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Foundation\Http\FormRequest;
 use Salah\LaravelCustomFields\FieldTypeRegistry;
 
 class StoreCustomFieldRequest extends CustomFieldBaseRequest
 {
-
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     public function rules(): array
     {
         $validTypes = array_keys(app(FieldTypeRegistry::class)->all());

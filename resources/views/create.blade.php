@@ -26,25 +26,16 @@
         <form action="{{ route('custom-fields.store') }}" method="POST" class="space-y-8">
             @csrf
 
-            <!-- Main Configuration Card -->
+            <!-- Primary Configuration Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="px-8 py-6 border-b border-gray-50 bg-gray-50/50">
+                <div class="px-8 py-6 border-b border-gray-50 bg-gradient-to-r from-indigo-50/50 to-purple-50/50">
                     <h2 class="text-lg font-bold text-gray-900 flex items-center">
                         <span class="w-2 h-6 bg-indigo-600 rounded-full mr-3"></span>
-                        Basic Configuration
+                        Primary Configuration
                     </h2>
                 </div>
                 <div class="p-8 space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {{-- Field Name --}}
-                        <div class="col-span-1">
-                            <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 px-1">Field Name</label>
-                            <input type="text" name="name"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-gray-50 focus:bg-white text-gray-900 font-medium placeholder-gray-400 @error('name') border-red-500 bg-red-50 @enderror"
-                                value="{{ old('name') }}" required placeholder="e.g., Company Size">
-                            @error('name') <p class="text-red-500 text-xs font-bold mt-2 ml-1">{{ $message }}</p> @enderror
-                        </div>
-
                         {{-- Model Selection --}}
                         <div class="col-span-1">
                             <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 px-1">Target Model</label>
@@ -78,6 +69,28 @@
                                     </svg>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Configuration Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-8 py-6 border-b border-gray-50 bg-gray-50/50">
+                    <h2 class="text-lg font-bold text-gray-900 flex items-center">
+                        <span class="w-2 h-6 bg-indigo-600 rounded-full mr-3"></span>
+                        Field Details
+                    </h2>
+                </div>
+                <div class="p-8 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {{-- Field Name --}}
+                        <div class="col-span-1">
+                            <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 px-1">Field Name</label>
+                            <input type="text" name="name"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-gray-50 focus:bg-white text-gray-900 font-medium placeholder-gray-400 @error('name') border-red-500 bg-red-50 @enderror"
+                                value="{{ old('name') }}" required placeholder="e.g., Company Size">
+                            @error('name') <p class="text-red-500 text-xs font-bold mt-2 ml-1">{{ $message }}</p> @enderror
                         </div>
 
                         {{-- Placeholder --}}
@@ -192,10 +205,10 @@
                                                 (opt.keywords && opt.keywords.toLowerCase().includes(this.search.toLowerCase()))
                                             );
                                         }
-                                    }" 
-                                    x-init="rulesValues[rule.name] = Array.isArray(rulesValues[rule.name]) ? rulesValues[rule.name] : []"
-                                    class="border border-gray-200 rounded-xl bg-white overflow-hidden shadow-sm">
-                                        
+                                    }"
+                                        x-init="rulesValues[rule.name] = Array.isArray(rulesValues[rule.name]) ? rulesValues[rule.name] : []"
+                                        class="border border-gray-200 rounded-xl bg-white overflow-hidden shadow-sm">
+
                                         <!-- Search Header -->
                                         <div class="pk-2 p-2 relative border-b border-gray-50">
                                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -203,9 +216,9 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                                 </svg>
                                             </div>
-                                            <input type="text" 
-                                                x-model="search" 
-                                                placeholder="Search countries..." 
+                                            <input type="text"
+                                                x-model="search"
+                                                placeholder="Search countries..."
                                                 class="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 focus:bg-white placeholder-gray-400">
                                         </div>
 
@@ -213,8 +226,8 @@
                                         <div class="h-40 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-gray-200 space-y-1 bg-white">
                                             <template x-for="option in filteredOptions" :key="option.value">
                                                 <label class="flex items-center px-2 py-1.5 rounded-lg hover:bg-indigo-50 cursor-pointer transition-colors group">
-                                                    <input type="checkbox" 
-                                                        :value="option.value" 
+                                                    <input type="checkbox"
+                                                        :value="option.value"
                                                         x-model="rulesValues[rule.name]"
                                                         class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                                                     <span :class="'ml-2'" class="text-sm text-gray-700 group-hover:text-indigo-900" x-text="option.label"></span>
@@ -224,7 +237,7 @@
                                                 No results found.
                                             </div>
                                         </div>
-                                        
+
                                         <!-- Footer Info -->
                                         <div class="bg-gray-50 px-3 py-2 border-t border-gray-100 text-[10px] text-gray-500 flex justify-between items-center font-medium">
                                             <span><span x-text="rulesValues[rule.name] ? rulesValues[rule.name].length : 0" class="font-bold text-indigo-600 text-xs"></span> selected</span>
@@ -234,7 +247,7 @@
                                 </template>
 
                                 <template x-if="rule.ui.tag === 'input'">
-                                    <input :type="rule.ui.type" 
+                                    <input :type="rule.ui.type"
                                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-medium placeholder:text-[.9em]"
                                         :placeholder="rule.ui.placeholder || 'Enter value...'"
                                         x-model="rulesValues[rule.name]">

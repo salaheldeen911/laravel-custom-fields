@@ -2,6 +2,7 @@
 
 namespace Salah\LaravelCustomFields\Exceptions;
 
+use Illuminate\Http\Request;
 use RuntimeException;
 
 class ValidationIntegrityException extends RuntimeException
@@ -17,7 +18,7 @@ class ValidationIntegrityException extends RuntimeException
     /**
      * Render the exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      */
     public function render($request)
     {

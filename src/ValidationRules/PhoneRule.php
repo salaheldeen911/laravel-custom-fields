@@ -7,6 +7,13 @@ use Salah\LaravelCustomFields\Services\CountryService;
 
 class PhoneRule extends ValidationRule implements HasOptions
 {
+    protected CountryService $countryService;
+
+    public function __construct(CountryService $countryService)
+    {
+        $this->countryService = $countryService;
+    }
+
     public function name(): string
     {
         return 'phone';
@@ -39,7 +46,7 @@ class PhoneRule extends ValidationRule implements HasOptions
 
     public function options(): array
     {
-        return CountryService::getAll();
+        return $this->countryService->getAll();
     }
 
     public function description(): string

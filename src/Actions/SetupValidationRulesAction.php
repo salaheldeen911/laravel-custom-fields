@@ -2,10 +2,10 @@
 
 namespace Salah\LaravelCustomFields\Actions;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
 use Salah\LaravelCustomFields\Models\CustomField;
 use Salah\LaravelCustomFields\Repositories\CustomFieldRepositoryInterface;
-use Salah\LaravelCustomFields\ValidationRuleRegistry;
 
 class SetupValidationRulesAction
 {
@@ -13,19 +13,19 @@ class SetupValidationRulesAction
         protected CustomFieldRepositoryInterface $repository
     ) {}
 
-    public function execute(string $modelClass): array
+    public function execute(string $modelClass, ?Model $model = null): array
     {
         $customFields = $this->repository->getByModel($modelClass);
         $rules = [];
 
         foreach ($customFields as $customField) {
-            $rules[$customField->slug] = $this->getValueRule($customField);
+            $rules[$customField->slug] = $this->getValueRule($customField, $model);
         }
 
         return $rules;
     }
 
-    protected function getValueRule(CustomField $customField): array
+    protected function getValueRule(CustomField $customField, ?Model $model = null): array
     {
         $handler = $customField->handler();
 
@@ -34,7 +34,7 @@ class SetupValidationRulesAction
         }
 
         $rules = [
-            $this->getRequirementRule($customField),
+            $this->getRequirementRule($customField, $model),
             ...$handler->baseRule(),
         ];
 
@@ -45,15 +45,30 @@ class SetupValidationRulesAction
         $rules = array_merge($rules, $this->getCustomRules($customField));
 
         $stringRules = array_filter($rules, 'is_string');
-        $otherRules = array_filter($rules, fn($r) => ! is_string($r));
+        $otherRules = array_filter($rules, fn ($r) => ! is_string($r));
         $finalRules = array_merge(array_values(array_unique($stringRules)), array_values($otherRules));
 
         return $this->mergePhoneRules($finalRules);
     }
 
-    protected function getRequirementRule(CustomField $customField): string
+    protected function getRequirementRule(CustomField $customField, ?Model $model = null): string
     {
-        return $customField->required ? 'required' : 'nullable';
+        if ($customField->required) {
+            if ($model && $customField->type === 'file') {
+                $hasValue = $model->customFieldsValues()
+                    ->where('custom_field_id', $customField->id)
+                    ->whereNotNull('value')
+                    ->exists();
+
+                if ($hasValue) {
+                    return 'sometimes';
+                }
+            }
+
+            return 'required';
+        }
+
+        return 'sometimes';
     }
 
     protected function getOptionsRule(CustomField $customField, $handler): mixed
@@ -121,7 +136,7 @@ class SetupValidationRulesAction
 
         if (! empty($phoneParams)) {
             $uniqueParams = array_unique(array_filter($phoneParams));
-            $otherRules[] = 'phone:' . implode(',', $uniqueParams);
+            $otherRules[] = 'phone:'.implode(',', $uniqueParams);
         }
 
         return $otherRules;

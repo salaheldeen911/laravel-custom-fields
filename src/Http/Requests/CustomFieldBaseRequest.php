@@ -4,12 +4,24 @@ namespace Salah\LaravelCustomFields\Http\Requests;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Salah\LaravelCustomFields\FieldTypeRegistry;
 use Salah\LaravelCustomFields\ValidationRuleRegistry;
 
 abstract class CustomFieldBaseRequest extends FormRequest
 {
+    public function authorize(): bool
+    {
+        $ability = config('custom-fields.authorization.ability');
+
+        if ($ability === null) {
+            return true;
+        }
+
+        return $this->user()?->can($ability) ?? false;
+    }
+
     /**
      * Prepare validation rules for storage by filtering falsy values
      * and ensuring the type's base rule is included.
@@ -103,7 +115,7 @@ abstract class CustomFieldBaseRequest extends FormRequest
                 'max:50',
                 'regex:/^[\p{L}\p{N}\s]+$/u',
                 Rule::unique('custom_fields', 'name')
-                    ->where(fn($q) => $q->where('model', $this->model))
+                    ->where(fn ($q) => $q->where('model', $this->model))
                     ->ignore($customFieldId),
             ],
         ];
@@ -118,7 +130,7 @@ abstract class CustomFieldBaseRequest extends FormRequest
                 'max:50',
                 'alpha_dash',
                 Rule::unique('custom_fields', 'slug')
-                    ->where(fn($q) => $q->where('model', $this->model))
+                    ->where(fn ($q) => $q->where('model', $this->model))
                     ->ignore($customFieldId),
             ],
         ];
@@ -126,16 +138,12 @@ abstract class CustomFieldBaseRequest extends FormRequest
 
     protected function getModelRules(array $validModels): array
     {
-        return [
-            'model' => ['required', 'string', Rule::in($validModels), 'bail'],
-        ];
+        return ['model' => ['required', 'string', Rule::in($validModels), 'bail']];
     }
 
     protected function getTypeRules(array $validTypes): array
     {
-        return [
-            'type' => ['required', 'string', Rule::in($validTypes), 'bail'],
-        ];
+        return ['type' => ['required', 'string', Rule::in($validTypes), 'bail']];
     }
 
     protected function getStandardFieldRules(): array
@@ -203,7 +211,7 @@ abstract class CustomFieldBaseRequest extends FormRequest
         }
 
         $allowedRules = $handler->allowedRules();
-        $allowedRuleNames = array_map(fn($rule) => is_string($rule) ? app($rule)->name() : $rule->name(), $allowedRules);
+        $allowedRuleNames = array_map(fn ($rule) => is_string($rule) ? app($rule)->name() : $rule->name(), $allowedRules);
         $registry = app(ValidationRuleRegistry::class);
 
         $activeRuleNames = array_keys($value);
@@ -286,7 +294,7 @@ abstract class CustomFieldBaseRequest extends FormRequest
                 $options = json_decode($options, true);
             }
             if (is_array($options)) {
-                $options = array_values(array_filter($options, fn($value) => ! is_null($value) && $value !== ''));
+                $options = array_values(array_filter($options, fn ($value) => ! is_null($value) && $value !== ''));
             }
             $this->merge(['options' => $options]);
         }
@@ -319,7 +327,9 @@ abstract class CustomFieldBaseRequest extends FormRequest
 
     protected function onFailedCustomFieldValidation(Validator $validator): void
     {
-        \Illuminate\Support\Facades\Log::debug('Custom Field Validation Failed:', $validator->errors()->toArray());
+        if (config('app.debug')) {
+            Log::debug('Custom Field Validation Failed:', $validator->errors()->toArray());
+        }
         parent::failedValidation($validator);
     }
 }

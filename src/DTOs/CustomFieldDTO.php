@@ -31,7 +31,7 @@ readonly class CustomFieldDTO
 
     public function toArray(): array
     {
-        return array_filter([
+        $data = [
             'name' => $this->name,
             'model' => $this->model,
             'type' => $this->type,
@@ -39,7 +39,12 @@ readonly class CustomFieldDTO
             'placeholder' => $this->placeholder,
             'options' => $this->options,
             'validation_rules' => $this->validation_rules,
-            'slug' => $this->slug,
-        ], fn($value, $key) => $key !== 'slug' || ! is_null($value), ARRAY_FILTER_USE_BOTH);
+        ];
+
+        if (! is_null($this->slug)) {
+            $data['slug'] = $this->slug;
+        }
+
+        return $data;
     }
 }

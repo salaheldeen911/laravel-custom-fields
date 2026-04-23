@@ -10,7 +10,7 @@ class CountryService
     /**
      * Get all countries supported by libphonenumber, with names.
      */
-    public static function getAll(): array
+    public function getAll(): array
     {
         // Cache forever (or until manually cleared) as country codes don't change often.
         return Cache::remember('custom_fields_countries_list', now()->addYear(), function () {

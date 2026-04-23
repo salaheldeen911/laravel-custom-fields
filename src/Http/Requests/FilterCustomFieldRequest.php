@@ -2,15 +2,8 @@
 
 namespace Salah\LaravelCustomFields\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-
-class FilterCustomFieldRequest extends FormRequest
+class FilterCustomFieldRequest extends CustomFieldBaseRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     public function rules(): array
     {
         return [

@@ -33,12 +33,63 @@
             @csrf
             @method('PUT')
 
+            <!-- Immutable Configuration Card -->
+            <div class="bg-gray-100 rounded-2xl shadow-sm border border-gray-200 overflow-hidden opacity-90">
+                <div class="px-8 py-4 border-b border-gray-200 bg-gray-200/50 flex justify-between items-center">
+                    <h2 class="text-sm font-black text-gray-600 uppercase tracking-widest flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                        </svg>
+                        Immutable Configuration
+                    </h2>
+                    <span class="px-3 py-1 bg-gray-300 text-gray-700 text-[10px] font-black rounded-full uppercase tracking-tighter">Locked</span>
+                </div>
+                <div class="p-8 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {{-- Model Selection --}}
+                        <div class="col-span-1">
+                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Target Model</label>
+                            <div class="relative">
+                                <select disabled class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-400 font-medium appearance-none cursor-not-allowed">
+                                    @foreach($meta['models'] as $model)
+                                    <option value="{{ $model }}" {{ old('model', $customField->model) === $model ? 'selected' : '' }}>{{ class_basename($model) }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-300">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Field Type --}}
+                        <div class="col-span-1">
+                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Input Type</label>
+                            <div class="relative">
+                                <select disabled class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-400 font-medium appearance-none cursor-not-allowed">
+                                    @foreach($meta['types'] as $type)
+                                    <option value="{{ $type['name'] }}" {{ $customField->type === $type['name'] ? 'selected' : '' }}>{{ $type['label'] }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-300">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-gray-400 font-medium italic">* Field type and target model cannot be modified after creation to maintain data integrity.</p>
+                </div>
+            </div>
+
             <!-- Main Configuration Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-8 py-6 border-b border-gray-50 bg-gray-50/50">
                     <h2 class="text-lg font-bold text-gray-900 flex items-center">
                         <span class="w-2 h-6 bg-indigo-600 rounded-full mr-3"></span>
-                        Field Settings
+                        Field Details
                     </h2>
                 </div>
                 <div class="p-8 space-y-6">
@@ -50,41 +101,6 @@
                                 class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-gray-50 focus:bg-white text-gray-900 font-medium placeholder-gray-400 @error('name') border-red-500 bg-red-50 @enderror"
                                 value="{{ old('name', $customField->name) }}" required>
                             @error('name') <p class="text-red-500 text-xs font-bold mt-2 ml-1">{{ $message }}</p> @enderror
-                        </div>
-
-                        {{-- Model Selection --}}
-                        <div class="col-span-1">
-                            <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 px-1">Target Model</label>
-                            <div class="relative">
-                                <select name="model" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-gray-50 focus:bg-white text-gray-900 font-medium appearance-none">
-                                    @foreach($meta['models'] as $model)
-                                    <option value="{{ $model }}" {{ old('model', $customField->model) === $model ? 'selected' : '' }}>{{ class_basename($model) }}</option>
-                                    @endforeach
-                                </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-400">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            @error('model') <p class="text-red-500 text-xs font-bold mt-2 ml-1">{{ $message }}</p> @enderror
-                        </div>
-
-                        {{-- Field Type --}}
-                        <div class="col-span-1">
-                            <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 px-1">Input Type</label>
-                            <div class="relative">
-                                <select name="type" x-model="selectedType" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-gray-50 focus:bg-white text-gray-900 font-medium appearance-none">
-                                    @foreach($meta['types'] as $type)
-                                    <option value="{{ $type['name'] }}">{{ $type['label'] }}</option>
-                                    @endforeach
-                                </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-400">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
                         </div>
 
                         {{-- Placeholder --}}
@@ -275,7 +291,7 @@
             meta: window.CustomFieldsMeta,
             selectedType: @json(old('type', $customField->type)),
             options: @json(old('options', $customField->options ?: [''])),
-            rulesValues: @json(old('validation_rules', $customField->present()->prepareRulesForUi() ?: (object)[])),
+            rulesValues: @json(old('validation_rules', $customField->present()->prepareRulesForUi() ?: (object) [])),
 
             get currentType() {
                 return this.meta.types.find(t => t.name === this.selectedType);

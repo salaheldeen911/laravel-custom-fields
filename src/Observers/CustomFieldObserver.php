@@ -5,6 +5,7 @@ namespace Salah\LaravelCustomFields\Observers;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Salah\LaravelCustomFields\Models\CustomField;
+use Salah\LaravelCustomFields\Models\CustomFieldValue;
 
 class CustomFieldObserver
 {
@@ -17,6 +18,11 @@ class CustomFieldObserver
 
     public function updating(CustomField $customField): void
     {
+        if ($customField->isDirty(['model', 'type'])) {
+            $customField->setAttribute('model', $customField->getOriginal('model'));
+            $customField->setAttribute('type', $customField->getOriginal('type'));
+        }
+
         if ($customField->isDirty('name') && ! $customField->isDirty('slug')) {
             $customField->slug = Str::slug($customField->name);
         }
@@ -24,18 +30,18 @@ class CustomFieldObserver
 
     public function saved(CustomField $customField): void
     {
-        Cache::forget(config('custom-fields.cache.prefix', 'custom_fields_') . $customField->getAttributes()['model']);
+        Cache::forget(config('custom-fields.cache.prefix', 'custom_fields_').$customField->getAttributes()['model']);
     }
 
     public function deleted(CustomField $customField): void
     {
-        Cache::forget(config('custom-fields.cache.prefix', 'custom_fields_') . $customField->getAttributes()['model']);
+        Cache::forget(config('custom-fields.cache.prefix', 'custom_fields_').$customField->getAttributes()['model']);
     }
 
     public function forceDeleting(CustomField $customField): void
     {
         if ($customField->type === 'file') {
-            $customField->values()->each(function ($value) {
+            $customField->values()->each(function (CustomFieldValue $value) {
                 $value->delete();
             });
         }

@@ -1,9 +1,9 @@
 # Laravel Custom Fields
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/salaheldeen911/laravel-custom-fields.svg?style=for-the-badge&color=blue)](https://packagist.org/packages/salaheldeen911/laravel-custom-fields)
-[![Total Downloads](https://img.shields.io/packagist/dt/salaheldeen911/laravel-custom-fields.svg?style=for-the-badge&color=green)](https://packagist.org/packages/salaheldeen911/laravel-custom-fields)
-[![PHP Version](https://img.shields.io/packagist/php-v/salaheldeen911/laravel-custom-fields.svg?style=for-the-badge&color=777bb4)](https://packagist.org/packages/salaheldeen911/laravel-custom-fields)
-[![License](https://img.shields.io/packagist/l/salaheldeen911/laravel-custom-fields.svg?style=for-the-badge&color=orange)](https://packagist.org/packages/salaheldeen911/laravel-custom-fields)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/salah/laravel-custom-fields.svg?style=for-the-badge&color=blue)](https://packagist.org/packages/salah/laravel-custom-fields)
+[![Total Downloads](https://img.shields.io/packagist/dt/salah/laravel-custom-fields.svg?style=for-the-badge&color=green)](https://packagist.org/packages/salah/laravel-custom-fields)
+[![PHP Version](https://img.shields.io/packagist/php-v/salah/laravel-custom-fields.svg?style=for-the-badge&color=777bb4)](https://packagist.org/packages/salah/laravel-custom-fields)
+[![License](https://img.shields.io/packagist/l/salah/laravel-custom-fields.svg?style=for-the-badge&color=orange)](https://packagist.org/packages/salah/laravel-custom-fields)
 
 **The Professional, Sealed-Lifecycle EAV Solution for Modern Laravel Applications.**
 
@@ -20,6 +20,7 @@ Tired of messy "extra_attributes" JSON columns that are impossible to validate? 
 -   **🧩 Dual-Nature Architecture**:
     -   **Blade**: Ready-to-use Tailwind components with error handling and old-input support.
     -   **Headless**: Rich metadata API (`models-and-types`) explaining rules, labels, and tags to your Frontend.
+-   **🚀 Laravel Octane Ready**: The singleton service state is automatically reset after every request via a `terminating` hook — safe for persistent Octane workers with zero configuration.
 
 ---
 
@@ -87,8 +88,8 @@ This package separates the world into two distinct logical flows to prevent conf
 
 ### 1. The Admin Flow (Defining Fields)
 *   **Goal:** Define *what* a field is (e.g., "Age").
-*   **Trait:** `ValidatesFieldDefinition`
-*   **Usage:** Only used when creating/editing the field definitions themselves. It validates that your rules don't conflict (e.g., preventing `alpha` logic on a `number` field).
+*   **Handled by:** The package's internal `CustomFieldBaseRequest` (used by `StoreCustomFieldRequest` and `UpdateCustomFieldRequest`).
+*   **Usage:** Automatically applied when creating/editing field definitions via the package routes. It validates that your rules don't conflict (e.g., preventing `alpha` logic on a `number` field).
 
 ### 2. The User Flow (Entering Data)
 *   **Goal:** Fill in the field (e.g., "25").
@@ -261,6 +262,9 @@ public function edit(User $user)
 | `color` | 🎨 | `<input type="color">` | `required` (Validates hex color format) |
 | `file` | 📂 | `<input type="file">` | `mimes`, `max_file_size` (Secure storage & URL generation) |
 
+> [!IMPORTANT]
+> **Immutability Notice**: To maintain data integrity, the **Field Type** (`type`) and **Target Model** (`model`) are immutable once a field is created. These cannot be changed during an update to prevent database schema mismatch and validation errors.
+
 ---
 
 ## 🛡 Validation Rule Conflicts
@@ -283,6 +287,28 @@ Create a class extending `FieldType` and register it in your `AppServiceProvider
 ```php
 public function boot() {
     $this->app->make(FieldTypeRegistry::class)->register(new MyCustomType());
+}
+```
+
+### Registering Custom Filters
+
+The `FilterEngine` is registered as a singleton. You can add your own query filters — for example, filtering by a custom attribute — from your `AppServiceProvider`:
+
+```php
+use Salah\LaravelCustomFields\Filters\FilterEngine;
+
+public function boot() {
+    $this->app->make(FilterEngine::class)->registerFilter('active', MyActiveFilter::class);
+}
+```
+
+Your filter class must implement a static `apply(Builder $query, mixed $value): Builder` method:
+
+```php
+class MyActiveFilter {
+    public static function apply(Builder $query, mixed $value): Builder {
+        return $query->where('is_active', (bool) $value);
+    }
 }
 ```
 
@@ -339,6 +365,7 @@ If you are building your own Admin Dashboard in a JS framework, use these endpoi
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | **GET** | `/api/custom-fields` | List all fields (Paginated) |
+| **GET** | `/api/custom-fields/{id}` | Get a single field |
 | **POST** | `/api/custom-fields` | Create a new field |
 | **PUT** | `/api/custom-fields/{id}` | Update field configuration |
 | **DELETE** | `/api/custom-fields/{id}` | Soft delete a field |
@@ -380,6 +407,56 @@ public function update(Request $request, User $user) {
     $user->updateCustomFields($request->all()); // Scans for slugs and updates values automatically
     
     return response()->json(['success' => true]);
+}
+```
+
+## ⚡️ Laravel Octane Support
+
+This package is fully safe for use with Laravel Octane. The `CustomFieldsService` is registered as a singleton but its internal `$validated` state is automatically reset at the end of every request lifecycle via a `terminating` hook in the service provider. No configuration is needed.
+
+If you run Octane and cache model aliases via `config('custom-fields.cache.octane_compatibility', true)`, the static alias cache in the `HasCustomFields` trait is disabled by default to avoid cross-request leakage.
+
+---
+
+## 🔐 Authorization
+
+By default, the package does not enforce authorization on its management routes (it relies on your middleware configuration).
+To protect them with a Gate ability, add it in `config/custom-fields.php`:
+
+```php
+'authorization' => [
+    'ability' => 'manage-custom-fields',
+],
+```
+
+Then define the ability in your `AuthServiceProvider`:
+
+```php
+use Illuminate\Support\Facades\Gate;
+
+Gate::define('manage-custom-fields', function ($user) {
+    return $user->isAdmin();
+});
+```
+
+When set, all custom field management requests (list, create, update, delete) will check this ability. If the user does not have the ability, a `403 Forbidden` response is returned.
+
+---
+
+## 🌍 Country Service
+
+The package ships with a `CountryService` that provides a full list of country names using `libphonenumber`. It is registered as a singleton in the container:
+
+```php
+use Salah\LaravelCustomFields\Services\CountryService;
+
+class MyController extends Controller
+{
+    public function __construct(protected CountryService $countryService) {}
+
+    public function countries() {
+        return response()->json($this->countryService->getAll());
+    }
 }
 ```
 

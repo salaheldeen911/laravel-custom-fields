@@ -34,4 +34,3 @@ class AlphaDashRule extends ValidationRule
         return 'alpha_dash';
     }
 }
-

@@ -10,8 +10,7 @@ class ElementMeta
     public function __construct(
         protected ConfigurableElement $element,
         protected array $baseRules = [],
-        protected array $additionalData = [],
-        protected ?string $component = null
+        protected array $additionalData = []
     ) {}
 
     public function toArray(): array

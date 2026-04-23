@@ -5,7 +5,6 @@ namespace Salah\LaravelCustomFields\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-
 class CustomFieldValue extends Model
 {
     use HasFactory;

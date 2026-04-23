@@ -5,12 +5,12 @@ namespace Salah\LaravelCustomFields\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
 use Illuminate\View\View;
+use Salah\LaravelCustomFields\DTOs\CustomFieldDTO;
 use Salah\LaravelCustomFields\Http\Requests\FilterCustomFieldRequest;
 use Salah\LaravelCustomFields\Http\Requests\StoreCustomFieldRequest;
 use Salah\LaravelCustomFields\Http\Requests\UpdateCustomFieldRequest;
 use Salah\LaravelCustomFields\Repositories\CustomFieldRepositoryInterface;
 use Salah\LaravelCustomFields\Services\CustomFieldsMetaService;
-use Salah\LaravelCustomFields\DTOs\CustomFieldDTO;
 
 class CustomFieldController extends Controller
 {

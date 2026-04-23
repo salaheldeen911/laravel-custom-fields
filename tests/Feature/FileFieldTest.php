@@ -1,15 +1,18 @@
 <?php
 
+namespace Salah\LaravelCustomFields\Tests\Feature;
+
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\Test;
 use Salah\LaravelCustomFields\Models\CustomField;
 use Salah\LaravelCustomFields\Tests\Support\Models\Post;
 use Salah\LaravelCustomFields\Tests\TestCase;
 
 class FileFieldTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function it_can_upload_and_store_single_file()
     {
         Config::set('custom-fields.models', [
@@ -50,7 +53,7 @@ class FileFieldTest extends TestCase
         Storage::disk('public')->assertExists($decoded['path']);
     }
 
-    /** @test */
+    #[Test]
     public function it_respects_configuration_for_disk_and_path()
     {
         Storage::fake('s3');
@@ -84,7 +87,7 @@ class FileFieldTest extends TestCase
         Storage::disk('s3')->assertExists($decoded['path']);
     }
 
-    /** @test */
+    #[Test]
     public function it_cleans_up_single_file_on_update()
     {
         Storage::fake('public');
@@ -125,7 +128,7 @@ class FileFieldTest extends TestCase
         Storage::disk('public')->assertExists($value2['path']);
     }
 
-    /** @test */
+    #[Test]
     public function it_cleans_up_files_when_custom_field_is_force_deleted()
     {
         Config::set('custom-fields.models', [
@@ -167,5 +170,57 @@ class FileFieldTest extends TestCase
         $this->assertDatabaseMissing('custom_field_values', [
             'id' => $value->id,
         ]);
+    }
+
+    #[Test]
+    public function it_cleans_up_old_file_when_overwriting_via_save_custom_fields()
+    {
+        Storage::fake('public');
+        Config::set('custom-fields.models', ['post' => Post::class]);
+        Config::set('custom-fields.strict_validation', false);
+
+        CustomField::create(['name' => 'Photo', 'type' => 'file', 'model' => 'post']);
+        $model = Post::create(['title' => 'Test']);
+
+        // First upload
+        $file1 = UploadedFile::fake()->image('old.jpg');
+        $model->saveCustomFields(['photo' => $file1]);
+
+        $oldPath = json_decode(
+            $model->fresh()->customFieldsValues->first()->getAttributes()['value'],
+            true
+        )['path'];
+        Storage::disk('public')->assertExists($oldPath);
+
+        // Second upload via saveCustomFields (not updateCustomFields)
+        $file2 = UploadedFile::fake()->image('new.jpg');
+        $model->saveCustomFields(['photo' => $file2]);
+
+        // Old file MUST be deleted
+        Storage::disk('public')->assertMissing($oldPath);
+    }
+
+    #[Test]
+    public function it_does_not_attempt_file_deletion_for_non_file_type_json_value()
+    {
+        Storage::fake('public');
+        Config::set('custom-fields.models', ['post' => Post::class]);
+        Config::set('custom-fields.strict_validation', false);
+
+        $field = CustomField::create(['name' => 'Color', 'type' => 'color', 'model' => 'post']);
+        $model = Post::create(['title' => 'Test']);
+
+        // Store a JSON-like color value (starts with { to trick the old heuristic)
+        $model->customFieldsValues()->create([
+            'custom_field_id' => $field->id,
+            'value' => '{"hex":"#ffffff"}',
+        ]);
+
+        // Delete the value — should NOT try to delete a storage file
+        $value = $model->customFieldsValues()->first();
+        $value->delete();
+
+        // No exception and no fake storage interaction
+        Storage::disk('public')->assertDirectoryEmpty('/');
     }
 }

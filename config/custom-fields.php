@@ -7,7 +7,7 @@ return [
     ],
     'routing' => [
         'api' => [
-            'enabled' => true,
+            'enabled' => false,
             'prefix' => 'api/custom-fields',
             // WARNING: No auth middleware by default. Add 'auth:sanctum' or your guard here.
             // Example: ['api', 'auth:sanctum', 'throttle:api']
@@ -60,5 +60,14 @@ return [
      */
     'pruning' => [
         'prune_deleted_after_days' => 30, // Permanently delete soft-deleted fields after X days
+    ],
+
+    /**
+     * Authorization
+     * Define a Gate ability name to protect custom field management routes.
+     * Set to null to skip authorization (ensure your middleware handles it).
+     */
+    'authorization' => [
+        'ability' => null, // e.g., 'manage-custom-fields'
     ],
 ];

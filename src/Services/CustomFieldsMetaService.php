@@ -15,7 +15,7 @@ class CustomFieldsMetaService
 
     public function forBuilder(): array
     {
-        return cache()->remember('custom-fields.meta.builder', 3600, function () {
+        return cache()->remember('custom-fields.meta.builder', config('custom-fields.cache.ttl', 3600), function () {
             return [
                 'models' => $this->getModels(),
                 'types' => $this->getFieldTypes(),
@@ -25,7 +25,7 @@ class CustomFieldsMetaService
 
     public function forIndex(): array
     {
-        return cache()->remember('custom-fields.meta.index', 3600, function () {
+        return cache()->remember('custom-fields.meta.index', config('custom-fields.cache.ttl', 3600), function () {
             return [
                 'models' => $this->getModels(),
                 'types' => collect($this->getFieldTypes())->pluck('name')->toArray(),
@@ -37,11 +37,6 @@ class CustomFieldsMetaService
     {
         cache()->forget('custom-fields.meta.builder');
         cache()->forget('custom-fields.meta.index');
-    }
-
-    public function getAllMeta(): array
-    {
-        return $this->forBuilder();
     }
 
     public function getModels(): array

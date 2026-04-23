@@ -4,13 +4,12 @@ namespace Salah\LaravelCustomFields\Services;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Validator as ValidationValidator;
+use Salah\LaravelCustomFields\Actions\ProcessCustomFieldFilesAction;
+use Salah\LaravelCustomFields\Actions\SetupValidationRulesAction;
+use Salah\LaravelCustomFields\Actions\StoreCustomFieldValuesAction;
+use Salah\LaravelCustomFields\Actions\ValidateCustomFieldsAction;
 use Salah\LaravelCustomFields\Exceptions\ValidationIntegrityException;
 use Salah\LaravelCustomFields\Repositories\CustomFieldRepositoryInterface;
-use Salah\LaravelCustomFields\Actions\SetupValidationRulesAction;
-use Salah\LaravelCustomFields\Actions\ValidateCustomFieldsAction;
-use Salah\LaravelCustomFields\Actions\StoreCustomFieldValuesAction;
-use Salah\LaravelCustomFields\Actions\ProcessCustomFieldFilesAction;
-use Salah\LaravelCustomFields\ValidationRuleRegistry;
 
 class CustomFieldsService
 {
@@ -27,9 +26,9 @@ class CustomFieldsService
     /**
      * Get rules for custom fields associated with the model.
      */
-    public function getValidationRules(string $modelClass): array
+    public function getValidationRules(string $modelClass, ?Model $model = null): array
     {
-        return $this->setupRulesAction->execute($modelClass);
+        return $this->setupRulesAction->execute($modelClass, $model);
     }
 
     /**
@@ -85,8 +84,6 @@ class CustomFieldsService
     {
         $this->processFilesAction->cleanupFilesForModel($model);
     }
-
-
 
     /**
      * Ensure the data has been validated before processing.

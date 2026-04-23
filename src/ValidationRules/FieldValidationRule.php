@@ -50,7 +50,7 @@ class FieldValidationRule extends ValidationRule implements HasOptions
 
     public function options(): array
     {
-        if ($this->rule instanceof \Salah\LaravelCustomFields\Contracts\HasOptions) {
+        if ($this->rule instanceof HasOptions) {
             return $this->rule->options();
         }
 
@@ -75,4 +75,3 @@ class FieldValidationRule extends ValidationRule implements HasOptions
         return $this->rule;
     }
 }
-

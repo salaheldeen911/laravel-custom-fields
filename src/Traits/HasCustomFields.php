@@ -2,6 +2,7 @@
 
 namespace Salah\LaravelCustomFields\Traits;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Salah\LaravelCustomFields\Models\CustomFieldValue;
@@ -57,7 +58,7 @@ trait HasCustomFields
         $ttl = config('custom-fields.cache.ttl', 3600);
         $prefix = config('custom-fields.cache.prefix', 'custom_fields_');
 
-        return Cache::remember($prefix . $modelAlias, $ttl, function () use ($modelAlias) {
+        return Cache::remember($prefix.$modelAlias, $ttl, function () use ($modelAlias) {
             return app(CustomFieldRepositoryInterface::class)
                 ->getByModel($modelAlias);
         });
@@ -66,9 +67,9 @@ trait HasCustomFields
     /**
      * Get only the rules array for integration with FormRequests.
      */
-    public static function getCustomFieldRules(): array
+    public static function getCustomFieldRules(?Model $model = null): array
     {
-        return app(CustomFieldsService::class)->getValidationRules(static::getCustomFieldModelAlias());
+        return app(CustomFieldsService::class)->getValidationRules(static::getCustomFieldModelAlias(), $model);
     }
 
     public static function customFieldsValidation(Request $request)
@@ -84,6 +85,7 @@ trait HasCustomFields
         $service = app(CustomFieldsService::class);
         $service->storeValues($this, $data);
         $this->unsetRelation('customFieldsValues');
+        $service->reset();
     }
 
     public function updateCustomFields(array $data)
@@ -91,6 +93,7 @@ trait HasCustomFields
         $service = app(CustomFieldsService::class);
         $service->updateValues($this, $data);
         $this->unsetRelation('customFieldsValues');
+        $service->reset();
     }
 
     public function customFieldsValues()
@@ -122,7 +125,7 @@ trait HasCustomFields
     {
         // Filter out values belonging to soft-deleted custom fields to prevent crashes
         return $this->customFieldsValues
-            ->filter(fn($item) => $item->customField !== null)
+            ->filter(fn ($item) => $item->customField !== null)
             ->keyBy('customField.slug')
             ->map->value
             ->toArray();

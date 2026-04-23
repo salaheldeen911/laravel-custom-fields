@@ -5,7 +5,6 @@ namespace Salah\LaravelCustomFields\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
 use Salah\LaravelCustomFields\FieldTypeRegistry;
 use Salah\LaravelCustomFields\FieldTypes\FieldType;
 use Salah\LaravelCustomFields\Presenters\CustomFieldPresenter;

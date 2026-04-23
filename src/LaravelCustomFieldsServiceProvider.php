@@ -18,12 +18,14 @@ use Salah\LaravelCustomFields\FieldTypes\TextAreaField;
 use Salah\LaravelCustomFields\FieldTypes\TextField;
 use Salah\LaravelCustomFields\FieldTypes\TimeField;
 use Salah\LaravelCustomFields\FieldTypes\UrlField;
+use Salah\LaravelCustomFields\Filters\FilterEngine;
 use Salah\LaravelCustomFields\Models\CustomField;
 use Salah\LaravelCustomFields\Models\CustomFieldValue;
 use Salah\LaravelCustomFields\Observers\CustomFieldObserver;
 use Salah\LaravelCustomFields\Observers\CustomFieldValueObserver;
 use Salah\LaravelCustomFields\Repositories\CustomFieldRepository;
 use Salah\LaravelCustomFields\Repositories\CustomFieldRepositoryInterface;
+use Salah\LaravelCustomFields\Services\CountryService;
 use Salah\LaravelCustomFields\Services\CustomFieldsService;
 use Salah\LaravelCustomFields\ValidationRules\AfterDateRule;
 use Salah\LaravelCustomFields\ValidationRules\AfterOrEqualDateRule;
@@ -69,7 +71,7 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
-        $this->app->singleton(FieldTypeRegistry::class, function () {
+        $this->app->singleton(FieldTypeRegistry::class, function ($app) {
             $registry = new FieldTypeRegistry;
             $registry->register(new TextField);
             $registry->register(new TextAreaField);
@@ -79,7 +81,7 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
             $registry->register(new CheckboxField);
             $registry->register(new NumberField);
             $registry->register(new DecimalField);
-            $registry->register(new PhoneField);
+            $registry->register(new PhoneField($app->make(CountryService::class)));
             $registry->register(new EmailField);
             $registry->register(new UrlField);
             $registry->register(new ColorField);
@@ -88,7 +90,7 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
             return $registry;
         });
 
-        $this->app->singleton(ValidationRuleRegistry::class, function () {
+        $this->app->singleton(ValidationRuleRegistry::class, function ($app) {
             $registry = new ValidationRuleRegistry;
             $registry->register(new MinRule);
             $registry->register(new MaxRule);
@@ -97,7 +99,7 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
             $registry->register(new AlphaRule);
             $registry->register(new AlphaDashRule);
             $registry->register(new AlphaNumRule);
-            $registry->register(new PhoneRule);
+            $registry->register(new PhoneRule($app->make(CountryService::class)));
             $registry->register(new AfterDateRule);
             $registry->register(new BeforeDateRule);
             $registry->register(new AfterOrEqualDateRule);
@@ -112,6 +114,8 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
         });
 
         $this->app->singleton(CustomFieldsService::class);
+        $this->app->singleton(CountryService::class);
+        $this->app->singleton(FilterEngine::class);
 
         $this->app->bind(
             CustomFieldRepositoryInterface::class,
@@ -124,12 +128,19 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
         $this->warnIfNoAuthMiddleware();
 
         if (config('custom-fields.routing.web.enabled', true)) {
-            $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+            $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         }
 
         if (config('custom-fields.routing.api.enabled', false)) {
-            $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+            $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
         }
+
+        // Octane safety: reset singleton state after each request lifecycle
+        $this->app->terminating(function () {
+            if ($this->app->bound(CustomFieldsService::class)) {
+                $this->app->make(CustomFieldsService::class)->reset();
+            }
+        });
 
         CustomField::observe(CustomFieldObserver::class);
         CustomFieldValue::observe(CustomFieldValueObserver::class);
@@ -145,12 +156,12 @@ class LaravelCustomFieldsServiceProvider extends PackageServiceProvider
             }
 
             $middleware = config("custom-fields.routing.{$route}.middleware", []);
-            $hasAuth = collect($middleware)->contains(fn($m) => str_starts_with($m, 'auth'));
+            $hasAuth = collect($middleware)->contains(fn ($m) => str_starts_with($m, 'auth'));
 
             if (! $hasAuth) {
                 Log::warning(
                     "Laravel Custom Fields: {$route} routes are enabled without auth middleware. "
-                        . "Add authentication middleware in config/custom-fields.php to protect your routes."
+                        .'Add authentication middleware in config/custom-fields.php to protect your routes.'
                 );
             }
         }

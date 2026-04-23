@@ -2,22 +2,14 @@
 
 namespace Salah\LaravelCustomFields\Tests\Feature;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use PHPUnit\Framework\Attributes\Test;
 use Salah\LaravelCustomFields\Models\CustomField;
+use Salah\LaravelCustomFields\Services\CustomFieldsService;
+use Salah\LaravelCustomFields\Tests\Support\Models\Post;
 use Salah\LaravelCustomFields\Tests\TestCase;
-use Salah\LaravelCustomFields\Traits\HasCustomFields;
-
-class Post extends Model
-{
-    use HasCustomFields;
-
-    protected $guarded = [];
-
-    protected $table = 'posts';
-}
 
 class CustomFieldsTest extends TestCase
 {
@@ -31,7 +23,7 @@ class CustomFieldsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_create_a_custom_field()
     {
         // Reverting to previous working state for now to pass tests
@@ -47,7 +39,7 @@ class CustomFieldsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_custom_fields()
     {
         $name = 'extra_info';
@@ -88,7 +80,7 @@ class CustomFieldsTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function it_can_store_and_retrieve_custom_field_values()
     {
         $name = 'views count';
@@ -127,7 +119,7 @@ class CustomFieldsTest extends TestCase
         $this->assertEquals(100, $post->custom($slug));
     }
 
-    /** @test */
+    #[Test]
     public function it_can_filter_by_custom_field()
     {
         $field = CustomField::create([
@@ -152,5 +144,59 @@ class CustomFieldsTest extends TestCase
 
         $this->assertCount(1, $results);
         $this->assertEquals('Post 1', $results->first()->title);
+    }
+
+    #[Test]
+    public function it_resets_validated_state_after_save_custom_fields()
+    {
+        config()->set('custom-fields.models', ['post' => Post::class]);
+        config()->set('custom-fields.strict_validation', false);
+
+        CustomField::create(['name' => 'Bio', 'type' => 'text', 'model' => 'post']);
+        $model = Post::create(['title' => 'Test']);
+
+        $service = app(CustomFieldsService::class);
+        $service->markAsValidated();
+        $this->assertTrue($service->isValidated());
+
+        $model->saveCustomFields(['bio' => 'hello']);
+
+        $this->assertFalse($service->isValidated());
+    }
+
+    #[Test]
+    public function it_allows_nullable_file_on_update_if_already_exists()
+    {
+        $name = 'attachment';
+        $slug = Str::slug($name);
+
+        // Create field
+        $field = CustomField::create([
+            'name' => $name,
+            'model' => 'post',
+            'type' => 'file',
+            'required' => true,
+        ]);
+
+        $post = Post::create(['title' => 'Test Post']);
+
+        // 1. Initial validation should fail (no file provided, required=true)
+        $request = new Request(['title' => 'Updated Post']);
+        $rules = Post::getCustomFieldRules(); // Static call, no model instance
+        $validator = validator($request->all(), $rules);
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey($slug, $validator->errors()->toArray());
+
+        // 2. Add a value to the database to simulate existing file
+        $post->customFieldsValues()->create([
+            'custom_field_id' => $field->id,
+            'value' => json_encode(['path' => 'uploads/test.jpg', 'name' => 'test.jpg']),
+        ]);
+
+        // 3. Validation with model instance should pass even if file is missing in request
+        $rulesWithModel = Post::getCustomFieldRules($post);
+        $validatorWithModel = validator($request->all(), $rulesWithModel);
+
+        $this->assertTrue($validatorWithModel->passes(), 'Validation should pass on update if file already exists');
     }
 }

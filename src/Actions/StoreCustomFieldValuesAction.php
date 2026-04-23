@@ -17,42 +17,17 @@ class StoreCustomFieldValuesAction
 
     public function execute(Model $model, array $data): void
     {
-        DB::transaction(function () use ($model, $data) {
-            $modelAlias = $model::getCustomFieldModelAlias();
-            $customFields = $this->repository->getByModelAndSlugs($modelAlias, array_keys($data))
-                ->keyBy('slug');
-
-            $values = [];
-            foreach ($data as $fieldSlug => $value) {
-                $customField = $customFields->get($fieldSlug);
-
-                if (! $customField) {
-                    continue;
-                }
-
-                $values[] = [
-                    'custom_field_id' => $customField->id,
-                    'model_id' => $model->getKey(),
-                    'model_type' => $model->getMorphClass(),
-                    'value' => $this->processFilesAction->prepareValueForStorage($value),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
-
-            if (! empty($values)) {
-                CustomFieldValue::upsert(
-                    $values,
-                    ['custom_field_id', 'model_type', 'model_id'],
-                    ['value', 'updated_at']
-                );
-            }
-        });
+        $this->upsertValues($model, $data, includeCreatedAt: true);
     }
 
     public function update(Model $model, array $data): void
     {
-        DB::transaction(function () use ($model, $data) {
+        $this->upsertValues($model, $data, includeCreatedAt: false);
+    }
+
+    private function upsertValues(Model $model, array $data, bool $includeCreatedAt): void
+    {
+        DB::transaction(function () use ($model, $data, $includeCreatedAt) {
             $modelAlias = $model::getCustomFieldModelAlias();
             $customFields = $this->repository->getByModelAndSlugs($modelAlias, array_keys($data))
                 ->keyBy('slug');
@@ -78,13 +53,19 @@ class StoreCustomFieldValuesAction
                     $oldValue = $existing ? $existing->getAttributes()['value'] : null;
                 }
 
-                $values[] = [
+                $entry = [
                     'custom_field_id' => $customField->id,
                     'model_id' => $model->getKey(),
                     'model_type' => $model->getMorphClass(),
                     'value' => $this->processFilesAction->prepareValueForStorage($value, $oldValue),
                     'updated_at' => now(),
                 ];
+
+                if ($includeCreatedAt) {
+                    $entry['created_at'] = now();
+                }
+
+                $values[] = $entry;
             }
 
             if (! empty($values)) {

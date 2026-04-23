@@ -4,6 +4,8 @@ namespace Salah\LaravelCustomFields\Tests\Feature;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Schema;
+use PHPUnit\Framework\Attributes\Test;
 use Salah\LaravelCustomFields\Models\CustomField;
 use Salah\LaravelCustomFields\Services\CustomFieldsService;
 use Salah\LaravelCustomFields\Tests\TestCase;
@@ -25,7 +27,7 @@ class ValidationRulesTest extends TestCase
         parent::setUp();
 
         // Setup database schema for the test model
-        \Illuminate\Support\Facades\Schema::create('test_models', function ($table) {
+        Schema::create('test_models', function ($table) {
             $table->id();
             $table->timestamps();
         });
@@ -36,7 +38,7 @@ class ValidationRulesTest extends TestCase
         ]);
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function min_rule_behaves_as_string_length_for_text_fields()
     {
         $field = CustomField::create([
@@ -60,7 +62,7 @@ class ValidationRulesTest extends TestCase
         $this->assertTrue($validator->passes(), 'Text field with length 5 should pass min:5');
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function min_rule_behaves_as_numeric_value_for_number_fields()
     {
         // 1. Create a Number Field with Min: 5
@@ -84,7 +86,7 @@ class ValidationRulesTest extends TestCase
         $this->assertTrue($validator->passes(), 'Number field with value 5 should pass min:5');
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function max_rule_behaves_correctly_for_mixed_types()
     {
         // Text Field Max: 5 -> Length limit
@@ -117,7 +119,7 @@ class ValidationRulesTest extends TestCase
         $this->assertTrue($service->validate('test_model', ['small-number' => 6])->fails());
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function validation_fails_gracefully_when_non_numeric_passed_to_number_field()
     {
         // Number Field with Min: 5
